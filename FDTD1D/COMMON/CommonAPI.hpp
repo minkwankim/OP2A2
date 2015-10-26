@@ -12,9 +12,18 @@
 #ifndef COMMONAPI_HPP_
 #define COMMONAPI_HPP_
 
-#include "/COMMON/ExportAPI.hpp"
+#include "./ExportAPI.hpp"
+
+/**
+ * Define the macro CommonAPI
+ *
+ */
 
 
-
+#ifdef COMMON_EXPORT
+#define COMMON_API	MK_EXPORT_API
+#else
+#define COMMON_API	MK_IMPORT_API
+#endif
 
 #endif /* COMMONAPI_HPP_ */
