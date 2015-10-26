@@ -21,9 +21,9 @@
 
 
 #ifdef COMMON_EXPORT
-#define COMMON_API	MK_EXPORT_API
+	#define COMMON_API	MK_EXPORT_API
 #else
-#define COMMON_API	MK_IMPORT_API
+	#define COMMON_API	MK_IMPORT_API
 #endif
 
 #endif /* COMMONAPI_HPP_ */

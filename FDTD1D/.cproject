@@ -15,12 +15,13 @@
 					<folderInfo id="intel.linux.x86_64.exe.rel.532770614._14.0.0" name="/" resourcePath="">
 						<toolChain id="intel.toolchain.linux.x86_64.exe.rel.261507577_14.0.0" name="Intel Toolchain for Executable on Intel(R) 64" superClass="intel.toolchain.linux.x86_64.exe.rel_14.0.0">
 							<targetPlatform archList="x86_64" binaryParser="org.eclipse.cdt.core.ELF" id="intel.platform.linux.x86_64.exe.rel_14.0.0.91303536" name="Platform.Executable.Release" osList="linux" superClass="intel.platform.linux.x86_64.exe.rel_14.0.0"/>
-							<builder arguments="-j2" buildPath="${workspace_loc:/FDTD1D}/Release" command="make" id="intel.builder.linux.x86_64.exe.rel.672710163_14.0.0" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Intel Builder" superClass="intel.builder.linux.x86_64.exe.rel_14.0.0"/>
+							<builder arguments="-j12" buildPath="${workspace_loc:/FDTD1D}/Release" command="make" id="intel.builder.linux.x86_64.exe.rel.672710163_14.0.0" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Intel Builder" superClass="intel.builder.linux.x86_64.exe.rel_14.0.0"/>
 							<tool command="icpc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="intel.cpp.compilestep.linux.x86_64.exe.rel.1782389183_14.0.0" name="Intel Intel(R) 64 C++ Compiler " superClass="intel.cpp.compilestep.linux.x86_64.exe.rel_14.0.0">
 								<option id="intel.compilestep.preprocessor.includedirectories.1032202520" name="Additional Include Directories (-I)" superClass="intel.compilestep.preprocessor.includedirectories" valueType="includePath">
+									<listOptionValue builtIn="false" value="/home/user/git/OP2A2/FDTD1D"/>
 									<listOptionValue builtIn="false" value="/home/user/intel/include"/>
+									<listOptionValue builtIn="false" value="/home/user/intel/mkl/include"/>
 									<listOptionValue builtIn="false" value="/home/user/Software/lapack/include/lapackpp"/>
-									<listOptionValue builtIn="false" value="/home/user/intel/mkl"/>
 								</option>
 								<option id="intel.compilestep.preprocessor.defsym.2082496748" name="Preprocessor Definitions (-D)" superClass="intel.compilestep.preprocessor.defsym" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="OS_LINUX"/>
@@ -28,24 +29,33 @@
 								<option id="intel.compilestep.general.warninglevel.439508944" name="Warning Level" superClass="intel.compilestep.general.warninglevel" value="general.warninglevel.remarks" valueType="enumerated"/>
 								<option id="intel.compilestep.debug.parallel.293328065" name="Enable Parallel Debug Checks (-debug parallel)" superClass="intel.compilestep.debug.parallel" value="true" valueType="boolean"/>
 								<option id="intel.compilestep.language.ansi_conformance.168134808" name="ANSI Conformance" superClass="intel.compilestep.language.ansi_conformance" value="ansi_conformance.8" valueType="enumerated"/>
-								<option id="intel.compilestep.coptions.2067301125" superClass="intel.compilestep.coptions" value="-openmp" valueType="string"/>
-								<option id="intel.compilestep.perflibs.tbb.744219830" superClass="intel.compilestep.perflibs.tbb" value="true" valueType="boolean"/>
-								<option id="intel.compilestep.perflibs.mkl.993802925" superClass="intel.compilestep.perflibs.mkl" value="perflibs.mkl.parallel" valueType="enumerated"/>
+								<option id="intel.compilestep.coptions.2067301125" name="Additional Options" superClass="intel.compilestep.coptions" value="-openmp" valueType="string"/>
+								<option id="intel.compilestep.perflibs.tbb.744219830" name="Use Intel(R) Threading Building Blocks Library (-tbb)" superClass="intel.compilestep.perflibs.tbb" value="true" valueType="boolean"/>
+								<option id="intel.compilestep.perflibs.mkl.993802925" name="Use Intel(R) Math Kernel Library (-mkl=[arg])" superClass="intel.compilestep.perflibs.mkl" value="perflibs.mkl.parallel" valueType="enumerated"/>
+								<option id="intel.compilestep.general.optimization2.2058807480" name="Optimization Level" superClass="intel.compilestep.general.optimization2" value="general.opt.none" valueType="enumerated"/>
+								<option id="intel.compilestep.general.debug.cpp.x86_64.exe.rel.338289963_14.0.0" superClass="intel.compilestep.general.debug.cpp.x86_64.exe.rel_14.0.0" value="true" valueType="boolean"/>
 								<inputType id="intel.cpp.compilestep.input.1647767741" superClass="intel.cpp.compilestep.input"/>
 							</tool>
 							<tool id="intel.c.compilestep.linux.x86_64.exe.rel.1177024203_14.0.0" name="Intel Intel(R) 64 C Compiler" superClass="intel.c.compilestep.linux.x86_64.exe.rel_14.0.0">
 								<inputType id="intel.c.compilestep.input.1394220457" superClass="intel.c.compilestep.input"/>
 							</tool>
-							<tool id="intel.c.linkstep.linux.x86_64.exe.rel.491956128_14.0.0" name="Intel Intel(R) 64 C Linker" superClass="intel.c.linkstep.linux.x86_64.exe.rel_14.0.0"/>
-							<tool command="icpc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="intel.cpp.linkstep.linux.x86_64.exe.rel.1661257107_14.0.0" name="Intel Intel(R) 64 C++ Linker" superClass="intel.cpp.linkstep.linux.x86_64.exe.rel_14.0.0">
-								<option id="intel.linkstep.libpath.727182777" name="Search Directory for Libraries (-L)" superClass="intel.linkstep.libpath" valueType="stringList">
-									<listOptionValue builtIn="false" value="/home/user/intel/mkl/lib"/>
+							<tool id="intel.c.linkstep.linux.x86_64.exe.rel.491956128_14.0.0" name="Intel Intel(R) 64 C Linker" superClass="intel.c.linkstep.linux.x86_64.exe.rel_14.0.0">
+								<option id="intel.linkstep.libpath.620849532" name="Search Directory for Libraries (-L)" superClass="intel.linkstep.libpath" valueType="stringList">
 									<listOptionValue builtIn="false" value="/home/user/intel/lib"/>
+									<listOptionValue builtIn="false" value="/home/user/intel/mkl/lib"/>
 									<listOptionValue builtIn="false" value="/home/user/Software/lapack/lib"/>
 								</option>
-								<option id="intel.linkstep.perflibs.tbb.2114112190" superClass="intel.linkstep.perflibs.tbb" value="true" valueType="boolean"/>
-								<option id="intel.linkstep.perflibs.mkl.1482518136" superClass="intel.linkstep.perflibs.mkl" value="perflibs.mkl.parallel" valueType="enumerated"/>
-								<option id="intel.linkstep.debugparallel.1674726966" superClass="intel.linkstep.debugparallel" value="true" valueType="boolean"/>
+							</tool>
+							<tool command="icpc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="intel.cpp.linkstep.linux.x86_64.exe.rel.1661257107_14.0.0" name="Intel Intel(R) 64 C++ Linker" superClass="intel.cpp.linkstep.linux.x86_64.exe.rel_14.0.0">
+								<option id="intel.linkstep.libpath.727182777" name="Search Directory for Libraries (-L)" superClass="intel.linkstep.libpath" valueType="stringList">
+									<listOptionValue builtIn="false" value="/home/user/intel/lib"/>
+									<listOptionValue builtIn="false" value="/home/user/intel/mkl/lib"/>
+									<listOptionValue builtIn="false" value="/home/user/Software/lapack/lib"/>
+								</option>
+								<option id="intel.linkstep.perflibs.tbb.2114112190" name="Use Intel(R) Threading Building Blocks Library (-tbb)" superClass="intel.linkstep.perflibs.tbb" value="true" valueType="boolean"/>
+								<option id="intel.linkstep.perflibs.mkl.1482518136" name="Use Intel(R) Math Kernel Library (-mkl=[arg])" superClass="intel.linkstep.perflibs.mkl" value="perflibs.mkl.parallel" valueType="enumerated"/>
+								<option id="intel.linkstep.debugparallel.1674726966" name="Enable Parallel Debug Checks (-debug parallel)" superClass="intel.linkstep.debugparallel" value="true" valueType="boolean"/>
+								<option id="intel.linkstep.general.optimization2.1890578281" name="Optimization Level" superClass="intel.linkstep.general.optimization2" value="general.opt.none" valueType="enumerated"/>
 								<inputType id="intel.linkstep.input.1095701482" superClass="intel.linkstep.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -71,18 +81,48 @@
 					<folderInfo id="intel.linux.x86_64.exe.dbg.2085858138._14.0.0" name="/" resourcePath="">
 						<toolChain id="intel.toolchain.linux.x86_64.exe.dbg.1977983892_14.0.0" name="Intel Toolchain for Executable on Intel(R) 64" superClass="intel.toolchain.linux.x86_64.exe.dbg_14.0.0">
 							<targetPlatform archList="x86_64" binaryParser="org.eclipse.cdt.core.ELF" id="intel.platform.linux.x86_64.exe.dbg_14.0.0.104868560" name="Platform.Executable.Debug" osList="linux" superClass="intel.platform.linux.x86_64.exe.dbg_14.0.0"/>
-							<builder arguments="-j2" buildPath="${workspace_loc:/FDTD1D}/Debug" command="make" id="intel.builder.linux.x86_64.exe.dbg.607508066_14.0.0" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Intel Builder" superClass="intel.builder.linux.x86_64.exe.dbg_14.0.0"/>
+							<builder arguments="-j12" buildPath="${workspace_loc:/FDTD1D}/Debug" command="make" id="intel.builder.linux.x86_64.exe.dbg.607508066_14.0.0" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Intel Builder" superClass="intel.builder.linux.x86_64.exe.dbg_14.0.0"/>
 							<tool id="intel.cpp.compilestep.linux.x86_64.exe.dbg.507993824_14.0.0" name="Intel Intel(R) 64 C++ Compiler " superClass="intel.cpp.compilestep.linux.x86_64.exe.dbg_14.0.0">
-								<option id="intel.compilestep.coptions.68883995" superClass="intel.compilestep.coptions" value="-openmp" valueType="string"/>
-								<option id="intel.compilestep.perflibs.tbb.228899271" superClass="intel.compilestep.perflibs.tbb" value="true" valueType="boolean"/>
-								<option id="intel.compilestep.perflibs.mkl.683689091" superClass="intel.compilestep.perflibs.mkl" value="perflibs.mkl.parallel" valueType="enumerated"/>
+								<option id="intel.compilestep.coptions.68883995" name="Additional Options" superClass="intel.compilestep.coptions" value="-openmp" valueType="string"/>
+								<option id="intel.compilestep.perflibs.tbb.228899271" name="Use Intel(R) Threading Building Blocks Library (-tbb)" superClass="intel.compilestep.perflibs.tbb" value="true" valueType="boolean"/>
+								<option id="intel.compilestep.perflibs.mkl.683689091" name="Use Intel(R) Math Kernel Library (-mkl=[arg])" superClass="intel.compilestep.perflibs.mkl" value="perflibs.mkl.parallel" valueType="enumerated"/>
+								<option id="intel.compilestep.general.warninglevel.633186365" name="Warning Level" superClass="intel.compilestep.general.warninglevel" value="general.warninglevel.remarks" valueType="enumerated"/>
+								<option id="intel.compilestep.debug.parallel.663712465" name="Enable Parallel Debug Checks (-debug parallel)" superClass="intel.compilestep.debug.parallel" value="false" valueType="boolean"/>
+								<option id="intel.compilestep.general.optimization2.731460074" name="Optimization Level" superClass="intel.compilestep.general.optimization2" value="general.opt.none" valueType="enumerated"/>
+								<option id="intel.compilestep.preprocessor.includedirectories.960503638" name="Additional Include Directories (-I)" superClass="intel.compilestep.preprocessor.includedirectories" valueType="includePath">
+									<listOptionValue builtIn="false" value="/home/user/git/OP2A2/FDTD1D"/>
+									<listOptionValue builtIn="false" value="/home/user/intel/include"/>
+									<listOptionValue builtIn="false" value="/home/user/intel/mkl/include"/>
+									<listOptionValue builtIn="false" value="/home/user/Software/lapack/include/lapackpp"/>
+								</option>
+								<option id="intel.compilestep.preprocessor.defsym.407597635" name="Preprocessor Definitions (-D)" superClass="intel.compilestep.preprocessor.defsym" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="OS_LINUX"/>
+								</option>
 								<inputType id="intel.cpp.compilestep.input.1439717230" superClass="intel.cpp.compilestep.input"/>
 							</tool>
 							<tool id="intel.c.compilestep.linux.x86_64.exe.dbg.1025743537_14.0.0" name="Intel Intel(R) 64 C Compiler" superClass="intel.c.compilestep.linux.x86_64.exe.dbg_14.0.0">
+								<option id="intel.compilestep.perflibs.tbb.2121251650" name="Use Intel(R) Threading Building Blocks Library (-tbb)" superClass="intel.compilestep.perflibs.tbb" value="true" valueType="boolean"/>
+								<option id="intel.compilestep.perflibs.mkl.2045351105" name="Use Intel(R) Math Kernel Library (-mkl=[arg])" superClass="intel.compilestep.perflibs.mkl" value="perflibs.mkl.parallel" valueType="enumerated"/>
+								<option id="intel.compilestep.general.warninglevel.1961403914" name="Warning Level" superClass="intel.compilestep.general.warninglevel" value="general.warninglevel.remarks" valueType="enumerated"/>
 								<inputType id="intel.c.compilestep.input.794792496" superClass="intel.c.compilestep.input"/>
 							</tool>
-							<tool id="intel.c.linkstep.linux.x86_64.exe.dbg.2054811885_14.0.0" name="Intel Intel(R) 64 C Linker" superClass="intel.c.linkstep.linux.x86_64.exe.dbg_14.0.0"/>
+							<tool id="intel.c.linkstep.linux.x86_64.exe.dbg.2054811885_14.0.0" name="Intel Intel(R) 64 C Linker" superClass="intel.c.linkstep.linux.x86_64.exe.dbg_14.0.0">
+								<option id="intel.linkstep.libpath.392032083" name="Search Directory for Libraries (-L)" superClass="intel.linkstep.libpath" valueType="stringList">
+									<listOptionValue builtIn="false" value="/home/user/intel/lib"/>
+									<listOptionValue builtIn="false" value="/home/user/intel/mkl/lib"/>
+									<listOptionValue builtIn="false" value="/home/user/Software/lapack/lib"/>
+								</option>
+							</tool>
 							<tool id="intel.cpp.linkstep.linux.x86_64.exe.dbg.302102588_14.0.0" name="Intel Intel(R) 64 C++ Linker" superClass="intel.cpp.linkstep.linux.x86_64.exe.dbg_14.0.0">
+								<option id="intel.linkstep.perflibs.tbb.1114222435" name="Use Intel(R) Threading Building Blocks Library (-tbb)" superClass="intel.linkstep.perflibs.tbb" value="true" valueType="boolean"/>
+								<option id="intel.linkstep.perflibs.mkl.1521194760" name="Use Intel(R) Math Kernel Library (-mkl=[arg])" superClass="intel.linkstep.perflibs.mkl" value="perflibs.mkl.parallel" valueType="enumerated"/>
+								<option id="intel.linkstep.libpath.305689474" name="Search Directory for Libraries (-L)" superClass="intel.linkstep.libpath" valueType="stringList">
+									<listOptionValue builtIn="false" value="/home/user/intel/lib"/>
+									<listOptionValue builtIn="false" value="/home/user/intel/mkl/lib"/>
+									<listOptionValue builtIn="false" value="/home/user/Software/lapack/lib"/>
+								</option>
+								<option id="intel.linkstep.debugparallel.769711061" name="Enable Parallel Debug Checks (-debug parallel)" superClass="intel.linkstep.debugparallel" value="false" valueType="boolean"/>
+								<option id="intel.linkstep.general.optimization2.223232916" name="Optimization Level" superClass="intel.linkstep.general.optimization2" value="general.opt.none" valueType="enumerated"/>
 								<inputType id="intel.linkstep.input.1101389973" superClass="intel.linkstep.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
