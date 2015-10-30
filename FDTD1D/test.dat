@@ -1,0 +1,9 @@
+TITLE = "test"
+FILETYPE = "FULL"
+VARIABLES = "X" "Y" 
+ZONE
+T = "cpu0"
+I = 0
+DATAPACKING = BLOCK
+VARLOCATION = ([1, 2, 4]=NODAL , [3, 5, 6, 7]=CELLCENTERED)
+

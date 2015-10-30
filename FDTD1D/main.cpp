@@ -17,22 +17,41 @@
 
 #include "./COMMON/ExceptionGeneral.hpp"
 #include "./COMMON/Map1D.hpp"
-
+#include "./IO/TecplotHeader.hpp"
+#include "./IO/TecplotZone.hpp"
 
 
 int main(int argc, char *argv[])
 {
-	bool			test_bool = false;
-	unsigned int 	test_int;
-	double	test_double;
+	std::vector< std::string> temp(2);
+	temp[0]	= "X";
+	temp[1] = "Y";
 
-	OP2A::Common::Map1D<std::string, int> test_map1D(4);
-	test_map1D.resize(10);
-	test_map1D.insert("test1", 1);
-	test_map1D.insert("test3", 3);
-	test_map1D.insert("test2", 7);
-	test_map1D.insert("test6", 9);
-	test_map1D.insert(0, "test5", 4);
+
+	OP2A::IO::TecplotHeader	tecplotHeader("test", 0, temp);
+	OP2A::IO::TecplotZone	tecplotzone;
+
+	tecplotHeader.writeASCII("test.dat");
+
+
+	tecplotzone.title = "cpu0";
+	std::vector<int> test_int1(3);
+	test_int1[0] = 1;
+	test_int1[1] = 2;
+	test_int1[2] = 4;
+
+	std::vector<int> test_int2(4);
+	test_int2[0] = 3;
+	test_int2[1] = 5;
+	test_int2[2] = 6;
+	test_int2[3] = 7;
+
+
+	tecplotzone.settingVarLocation(test_int1.size(), test_int1, test_int2.size(), test_int2);
+	tecplotzone.writeASCII("test.dat");
+
+
+
 
 
 
