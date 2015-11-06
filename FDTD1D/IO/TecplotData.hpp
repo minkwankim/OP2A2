@@ -25,9 +25,10 @@
 namespace OP2A{
 namespace IO{
 
-void TecplotDataWritePoint(std::vector <OP2A::Common::Array1D<double> > & data, int num, int var);
-void TecplotDataWriteBlock(std::vector <OP2A::Common::Array1D<double> > & data, int num, int var);
+void TecplotDataWritePoint(const std::string& filename, std::vector <OP2A::Common::Array1D<double> > & data, int num, int var);
+void TecplotDataWriteBlock(const std::string& filename, std::vector <OP2A::Common::Array1D<double> > & data, int num, int var);
 
+void TecplotDataWriteConnectivity(const std::string& filename, std::vector <std::vector<double> > & data, int NCM, int zonetype);
 
 }
 }

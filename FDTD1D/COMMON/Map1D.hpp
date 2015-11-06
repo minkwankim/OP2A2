@@ -139,7 +139,7 @@ public:
 	// @exception	NoSuchValueException is thrown if key not in map
 	VALUE find(const KEY& aKey)
 	{
-		if(m_vectorMap.empty())	valueNotFound(aKey);
+		if(m_vectorMap.empty())	valueAreEmpty();
 		if(!m_sorted)			sortKeys();
 
 		typename std::vector<std::pair<KEY,VALUE> >::iterator itr;
@@ -374,6 +374,20 @@ private:
 
 		throw Common::ExceptionGeneral (FromHere(), msg, "NoSuchValue");
 	}
+
+	void valueAreEmpty()
+	{
+		std::string msg = "Map1D: Data of value is empty [memory is not assigned yet]";
+		throw Common::ExceptionGeneral (FromHere(), msg, "NoSuchValue:Empty Data");
+	}
+
+	void keyAreEmpty()
+	{
+		std::string msg = "Map1D: Data of key is empty [memory is not assigned yet]";
+		throw Common::ExceptionGeneral (FromHere(), msg, "NoSuchValue:Empty Data");
+	}
+
+
 
 
 

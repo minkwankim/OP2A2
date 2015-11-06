@@ -15,47 +15,40 @@
 #include <omp.h>
 #include <iomanip>
 
-#include "./COMMON/ExceptionGeneral.hpp"
-#include "./COMMON/Map1D.hpp"
-#include "./IO/TecplotHeader.hpp"
-#include "./IO/TecplotZone.hpp"
+#include "./GRID/Grid.hpp"
+#include "./DATA/DataBasic.hpp"
 
+
+#include "./COMMON/Array1D.hpp"
+#include "./COMMON/TypeConversion.hpp"
+
+using namespace OP2A;
 
 int main(int argc, char *argv[])
 {
-	std::vector< std::string> temp(2);
-	temp[0]	= "X";
-	temp[1] = "Y";
+	double testDouble1;
 
 
-	OP2A::IO::TecplotHeader	tecplotHeader("test", 0, temp);
-	OP2A::IO::TecplotZone	tecplotzone;
+	DATA::DataBasic	testData(3, 10, 1);
 
-	tecplotHeader.writeASCII("test.dat");
+	Common::Map1D<string, int>	testMapScalar;
+	testMapScalar.insert("rho", 0);
+	testMapScalar.insert("E", 1);
+	testMapScalar.insert("H", 2);
+	testData.dataMapScalar	= testMapScalar;
+	testData.checkScalar();
 
+	testData("rho")	= 1.0;
+	testData("E")	= 1.5;
 
-	tecplotzone.title = "cpu0";
-	std::vector<int> test_int1(3);
-	test_int1[0] = 1;
-	test_int1[1] = 2;
-	test_int1[2] = 4;
-
-	std::vector<int> test_int2(4);
-	test_int2[0] = 3;
-	test_int2[1] = 5;
-	test_int2[2] = 6;
-	test_int2[3] = 7;
-
-
-	tecplotzone.settingVarLocation(test_int1.size(), test_int1, test_int2.size(), test_int2);
-	tecplotzone.writeASCII("test.dat");
+	testDouble1 = testData("E");
 
 
 
 
 
-
-
-	std::cout << "test" << std::endl;
+	std::cout << "test grid: " << std::endl;
 	std::cout << "TEST:";
+
+
 }

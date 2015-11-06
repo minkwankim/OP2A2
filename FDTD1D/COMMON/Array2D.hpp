@@ -21,6 +21,10 @@
 namespace OP2A{
 namespace Common{
 
+typedef std::vector< std::vector<double> >	DoubleMatrix;
+typedef std::vector< std::vector<int> >		IntMatrix;
+
+
 /*
  * Class for 2D array (Matrix, I x J)
  * 	- [Size_]: size of Coloumn (I)
@@ -72,8 +76,12 @@ public:
 
 	~Array2D()
 	{
-		for (int i = 0; i <= m_size_I-1; i++)	m_data[i].clear();
-		m_data.clear();
+
+		if (m_data.size() > 0)
+		{
+			for (int i = 0; i <= m_size_I-1; i++)	m_data[i].clear();
+			m_data.clear();
+		}
 
 	}
 
