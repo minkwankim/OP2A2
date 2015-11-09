@@ -121,6 +121,18 @@ double& DataBasic::operator() (const string varName, unsigned int i, unsigned in
 }
 
 
+// MF-PUB-04 - Alloc
+void DataBasic::dataVectorAlloc(const string varName, unsigned int iSize)
+{
+	dataVector[dataMapVector.find(varName)].resize(iSize);
+}
+
+void DataBasic::dataMatrixAlloc(const string varName, unsigned int iSize, unsigned int jSize)
+{
+	dataMatrix[dataMapMatrix.find(varName)].resize(iSize, jSize);
+}
+
+
 
 } /* namespace DATA */
 } /* namespace OP2A */

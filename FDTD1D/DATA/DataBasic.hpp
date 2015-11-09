@@ -78,11 +78,9 @@ public:
 	double& operator() (const string varName, unsigned int i);					// For vector variable
 	double& operator() (const string varName, unsigned int i, unsigned int j);	// For matrix variable
 
-
-	// MF-PUB-04
-
-
-
+	// MF-PUB-04 - Alloc
+	void dataVectorAlloc(const string varName, unsigned int iSize);
+	void dataMatrixAlloc(const string varName, unsigned int iSize, unsigned int jSize);
 
 
 
