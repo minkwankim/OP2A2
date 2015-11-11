@@ -21,13 +21,25 @@ bool Configuration::isConfigured()
 }
 
 
-void Configuration::Configure(const int dim, const int nnm, const int nfm, const int ncm, const int ngm)
+void Configuration::Configure(const int dim, const int nnm, const int nfm, const int ncm, const int ngm, const double mesh_factor, bool is_axisymmetric)
 {
 	DIM	= dim;
 	NNM	= nnm;
 	NFM	= nfm;
 	NCM	= ncm;
 	NGM	= ngm;
+
+	gridFactor = mesh_factor;
+	isAxisymmetric = is_axisymmetric;
+
+	if (DIM == 3 || DIM == 1)
+	{
+		if (isAxisymmetric == true)
+		{
+			std::cout <<"[Warning!!] Axisymmetric is only applicable for 2D case. The Axisymmetric option is automatically turned off!!" << std::endl;
+		}
+	}
+
 
 	m_isConfigured = true;
 }

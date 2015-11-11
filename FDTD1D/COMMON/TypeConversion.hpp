@@ -32,7 +32,7 @@ T IntToEnum(int v)
 template<typename T>
 int EnumToInt(T v)
 {
-	return(static_cast<T>(v));
+	return(static_cast<int>(v));
 }
 
 

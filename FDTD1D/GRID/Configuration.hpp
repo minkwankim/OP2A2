@@ -38,6 +38,8 @@ public:
 	int NCM;	// Number of cells in a grid
 	int NGM;	// Number of ghost in a grid
 
+	double gridFactor;
+	bool  isAxisymmetric;
 private:
 	bool	m_isConfigured;
 
@@ -45,9 +47,9 @@ private:
 	 * II. Constructor and Destructor
 	 */
 public:
-	Configuration(): DIM(1), NNM(0), NFM(0), NCM(0), NGM(0), m_isConfigured(false)	{	};
+	Configuration(): DIM(1), NNM(0), NFM(0), NCM(0), NGM(0), m_isConfigured(false), gridFactor(1.0), isAxisymmetric(false)	{	};
 	Configuration(const int dim, const int nnm, const int nfm, const int ncm, const int ngm)
-	:DIM(dim), NNM(nnm), NFM(nfm), NCM(ncm), NGM(ngm), m_isConfigured(true)	{	};
+	:DIM(dim), NNM(nnm), NFM(nfm), NCM(ncm), NGM(ngm), m_isConfigured(true), gridFactor(1.0), isAxisymmetric(false)	{	};
 
 	~Configuration() {	};
 
@@ -57,7 +59,7 @@ public:
 	 */
 public:
 	bool isConfigured();
-	void Configure(const int dim, const int nnm, const int nfm, const int ncm, const int ngm);
+	void Configure(const int dim, const int nnm, const int nfm, const int ncm, const int ngm, const double mesh_factor, bool is_axisymmetric);
 
 };
 

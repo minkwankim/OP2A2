@@ -18,10 +18,9 @@
 #include "GeometryCell.hpp"
 
 namespace OP2A {
-class Cell;
-
 namespace GRID {
 
+class CellCart;
 
 class GeometryCellCart: public GeometryCell
 {
@@ -44,7 +43,7 @@ public:
 	bool hasChildren;
 	int	numChildren;
 
-	std::vector<Cell* >	listChildren;
+	std::vector<CellCart* >	listChildren;
 
 
 	/*

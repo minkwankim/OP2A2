@@ -12,8 +12,9 @@
 #ifndef GRID_HPP_
 #define GRID_HPP_
 
-
 #include "./GRID/GridTypeDefinitions.hpp"
+
+#define	OP2A_GRID_AXISSYMMETRIC_ADD	1.0e-9
 
 
 namespace OP2A{
@@ -87,7 +88,7 @@ public:
 			m_isAllocated = true;
 		}
 
-		if (m_isAllocated)
+		if (m_isAllocated != true)
 		{
 			OP2A::Common::ExceptionGeneral(FromHere(), "Memory for Grid class is not allocated. Please check the system memory:",  "DataAllocation:");
 		}
@@ -202,10 +203,20 @@ public:
 		initializeCell(iCell);
 		initializeGhost(iGhost);
 	}
-
 };
 
 
+
+void GridProcessingGeometryNode(OP2A::GRID::Configuration&	config, std::vector<GRID::Node>& nodes);
+void GridProcessingGeometryFace(OP2A::GRID::Configuration&	config, std::vector<GRID::Face>& faces);
+void GridProcessingGeometryCell(OP2A::GRID::Configuration&	config, std::vector<GRID::Cell>& cells);
+void GridProcessingGeometryCellCart(OP2A::GRID::Configuration&	config, std::vector<GRID::CellCart>& cells);
+void GridProcessingGeometryGhost(OP2A::GRID::Configuration&	config, std::vector<GRID::Cell>& ghosts);
+void GridProcessingGeometryGhostCart(OP2A::GRID::Configuration&	config, std::vector<GRID::CellCart>& ghosts);
+
+
+
+Grid<GRID::Node, GRID::Face, GRID::Cell, GRID::Cell> GridGen1D(const double x0, const double xL, const int N, const int gridFlag);
 
 
 }

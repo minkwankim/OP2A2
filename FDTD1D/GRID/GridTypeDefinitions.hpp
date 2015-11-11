@@ -32,10 +32,33 @@
 namespace OP2A{
 namespace GRID{
 
-typedef	OP2A::GridBasicElement<OP2A::GRID::GeometryCell, 		OP2A::GRID::ConnectivityCell, OP2A::DATA::DataBasic>	Cell;
-typedef	OP2A::GridBasicElement<OP2A::GRID::GeometryCellCart, 	OP2A::GRID::ConnectivityCell, OP2A::DATA::DataBasic>	CellCart;
-typedef OP2A::GridBasicElement<OP2A::GRID::GeometryFace, 		OP2A::GRID::ConnectivityFace, OP2A::DATA::DataBasic>	Face;
-typedef OP2A::GridBasicElement<OP2A::GRID::GeometryNode, 		OP2A::GRID::ConnectivityNode, OP2A::DATA::DataBasic>	Node;
+class Cell:public OP2A::GridBasicElement<OP2A::GRID::GeometryCell,	OP2A::GRID::ConnectivityCell, OP2A::DATA::DataBasic>
+{
+
+};
+
+class CellCart: public OP2A::GridBasicElement<OP2A::GRID::GeometryCellCart, 	OP2A::GRID::ConnectivityCell, OP2A::DATA::DataBasic>
+{
+
+};
+
+
+class Face: public OP2A::GridBasicElement<OP2A::GRID::GeometryFace, 		OP2A::GRID::ConnectivityFace, OP2A::DATA::DataBasic>
+{
+
+};
+
+
+class Node: public OP2A::GridBasicElement<OP2A::GRID::GeometryNode, 		OP2A::GRID::ConnectivityNode, OP2A::DATA::DataBasic>
+{
+
+};
+
+
+//typedef	OP2A::GridBasicElement<OP2A::GRID::GeometryCell, 		OP2A::GRID::ConnectivityCell, OP2A::DATA::DataBasic>	Cell;
+//typedef	OP2A::GridBasicElement<OP2A::GRID::GeometryCellCart, 	OP2A::GRID::ConnectivityCell, OP2A::DATA::DataBasic>	CellCart;
+//typedef OP2A::GridBasicElement<OP2A::GRID::GeometryFace, 		OP2A::GRID::ConnectivityFace, OP2A::DATA::DataBasic>	Face;
+//typedef OP2A::GridBasicElement<OP2A::GRID::GeometryNode, 		OP2A::GRID::ConnectivityNode, OP2A::DATA::DataBasic>	Node;
 
 
 

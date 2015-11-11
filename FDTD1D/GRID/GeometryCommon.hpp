@@ -26,18 +26,20 @@ enum CellType
 {
 	c_ghost			= -1,
 	c_mixed			= 0,
-	c_triangle		= 1,
-	c_tetrahedron	= 2,
-	c_quadrilateral = 3,
-	c_hexahedron	= 4,
-	c_pyramid		= 5,
-	c_wedge			= 6
+	c_line			= 1,
+	c_triangle		= 2,
+	c_tetrahedron	= 3,
+	c_quadrilateral = 4,
+	c_hexahedron	= 5,
+	c_pyramid		= 6,
+	c_wedge			= 7
 };
 
 enum FaceType
 {
 	f_ghost				= -1,
 	f_mixed				= 0,
+	f_point				= 1,
 	f_line				= 2,
 	f_triangle			= 3,
 	f_quadrilateral 	= 4

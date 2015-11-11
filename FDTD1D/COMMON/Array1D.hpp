@@ -191,6 +191,12 @@ public:
     	m_size_I = 0;
     }
 
+    // CF-12: give data
+    std::vector<T> giveData()
+    {
+    	return (m_data);
+    }
+
 
     // CF-13: Show description
     std::string	description()

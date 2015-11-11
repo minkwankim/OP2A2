@@ -15,11 +15,10 @@
 #include <vector>
 
 namespace OP2A {
+namespace GRID {
+
 class Node;
 class Cell;
-
-
-namespace GRID {
 
 class ConnectivityFace {
 public:
