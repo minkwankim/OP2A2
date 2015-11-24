@@ -15,58 +15,73 @@
 #include "COMMON/Array1D.hpp"
 #include "COMMON/Common.hpp"
 
+#include "GRID/Grid.hpp"
+#include "DATA/DataSamples.hpp"
+
+using namespace std;
 
 namespace OP2A{
-namespace FDTD1D{
-
-
-class Grid
+namespace FDTD{
+class FDTD1D_GRID
 {
 public:
 	/*
 	 * I. Constructor and Destructor
 	 */
-	Grid():NX(0), time(0), maxTime(0), cdtds(0.0){	};
-	Grid(int nx, int t, int max_t, double courant_number):
-		ez(nx), hy(nx-1),
-		NX(nx),	time(t), maxTime(max_t), cdtds(courant_number),
-		ceze(nx), cezh(nx),
-		chyh(nx-1), chye(nx-1)
-	{
-
-	};
-
-	~Grid()	{ };
+	FDTD1D_GRID();
+	~FDTD1D_GRID();
 
 	/*
 	 * II. Member Variables
 	 */
 public:
-	OP2A::Common::Array1D<double>	ez;		// electric field array
-	OP2A::Common::Array1D<double>	hy;		// magnetic field array
+	unsigned int NNM;
+	unsigned int NCM;
 
-	OP2A::Common::Array1D<double>	ceze;	// Coefficient for updating Ez
-	OP2A::Common::Array1D<double>	cezh;	// Coefficient for updating Ez
-	OP2A::Common::Array1D<double>	chyh;	// Coefficient for updating Hy
-	OP2A::Common::Array1D<double>	chye;	// Coeffifienc for updating Hy
+	vector<double> Xn;
+	vector<double> Xc;
 
-	int NX;
-	int time;
-	int	maxTime;
+	unsigned int BC_type_0;
+	unsigned int BC_type_L;
 
-	double	cdtds;
+protected:
+	vector <double> m_dXn;
+	vector <double> m_dXc;
 
 
 	/*
 	 * III. Member Functions
 	 */
 public:
-	void init();
+	void Setup(unsigned int ncm, double x0, double xL);
+	double dXn(unsigned int i);
+	double dXc(unsigned int i);
 };
 
 
 
 
+class FDTD1D_GRIDv2 : public OP2A::Grid1D
+{
+public:
+	/*
+	 * I. Constructor and Destructor
+	 */
+	FDTD1D_GRIDv2();
+	~FDTD1D_GRIDv2();
+
+	/*
+	 * II. Member Variables
+	 */
+protected:
+
+
+	/*
+	 * III. Member Functions
+	 */
+public:
+	void Setup(unsigned int nfm, double x0, double xL);
+};
 
 
 

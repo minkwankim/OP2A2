@@ -155,10 +155,10 @@ void TecplotZone::writeASCII(const std::string& filename)
 	}
 
 
+	// 3. Element / node information
 	if (zonetype == ORDERED)
 	{
 		tecplot_file << "I = " << I;
-
 		if (ND == 2) tecplot_file << ", J = " << J;
 		if (ND == 3) tecplot_file << ", J = " << J << ", K = " << K;
 		tecplot_file << endl;
@@ -192,9 +192,12 @@ void TecplotZone::writeASCII(const std::string& filename)
 		}
 	}
 
-	int var = DT.size();
+
+	// 4. Variable data type
 	if (flag_dt == true)
 	{
+		int var = DT.size();
+
 		tecplot_file << "DT = (" << DataType_str(DT[0]);
 		for (int i = 1; i <= var-1; i++)
 		{
@@ -203,17 +206,24 @@ void TecplotZone::writeASCII(const std::string& filename)
 		tecplot_file <<")" << endl;
 	}
 
+
+	// 5. Data packing method
 	tecplot_file << "DATAPACKING = " << DataPacking_str(DATAPACKING) << endl;
-	tecplot_file << "VARLOCATION = " << VARLOCATION << endl;
+
+
+	// 6. Variable Location
+	if (ND > 1)	tecplot_file << "VARLOCATION = " << VARLOCATION << endl;
+
 
 
 	if (flag_VARSHARELIST == true)
 	{
 		tecplot_file << "VARSHARELIST = ([1";
-		if (ND == 2)	tecplot_file << ", 2] = " << VARSHAREZONE << ")" << endl;
-		if (ND == 3)	tecplot_file << ", 2, 3] = " << VARSHAREZONE << ")" << endl;
+		if (ND == 2)	tecplot_file << ", 2";
+		if (ND == 3)	tecplot_file << ", 2, 3";
+		tecplot_file << "] = " << VARSHAREZONE << ")" << endl;
 
-		tecplot_file << "CONNECTIVITYSHAREZONE = " << VARSHAREZONE << endl;
+		if (ND > 1)	tecplot_file << "CONNECTIVITYSHAREZONE = " << VARSHAREZONE << endl;
 	}
 
 
@@ -230,15 +240,40 @@ void TecplotZone::writeASCII(const std::string& filename)
 // @brief	Setting zonetype and dimension
 void TecplotZone::settingZoneType (IO_Tecplot_ZoneType zone, int nd)
 {
-	zonetype		= zone;
-	ND				= nd;
-	flag_zonetype	= true;
+	if (nd > 1)
+	{
+		zonetype		= zone;
+		ND				= nd;
+		flag_zonetype	= true;
+	}
+	else
+	{
+		ND				= nd;
+		flag_zonetype	= false;
+	}
 }
 
 void TecplotZone::settingZoneType (int nd)
 {
-	ND				= nd;
-	flag_zonetype	= false;
+	ND	= nd;
+
+	switch (nd)
+	{
+	case 1:
+		zonetype		= IO::ORDERED;
+		flag_zonetype	= false;
+		break;
+
+	case 2:
+		zonetype		= IO::FEQUADRILATERAL;
+		flag_zonetype	= true;
+		break;
+
+	case 3:
+		zonetype		= IO::FEBRICK;
+		flag_zonetype	= true;
+		break;
+	}
 }
 
 

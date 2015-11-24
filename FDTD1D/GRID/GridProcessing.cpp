@@ -62,7 +62,7 @@ void GridProcessingGeometryFace(OP2A::GRID::Configuration&	config, std::vector<G
 		for (int k = 0; k <= config.DIM-1; k++)
 		{
 			faces[f].geo.x[k]	= 0.0;	// Initialize value
-			for (int n = 0; n <= faces[f].conn.numNeighborCells-1; n++)
+			for (int n = 0; n <= faces[f].conn.numNodes-1; n++)
 			{
 				faces[f].geo.x[k]	+= faces[f].conn.listNodes[n]->geo.x[k];
 			}
@@ -188,6 +188,112 @@ void GridProcessingGeometryFace(OP2A::GRID::Configuration&	config, std::vector<G
 }
 
 
+void GridProcessingGeometryFace(OP2A::GRID::Configuration&	config, std::vector<GRID::FaceCart>& faces)
+{
+#pragma ivdep
+	for (int f = 1; f <= config.NFM; f++)
+	{
+		// 1. Calculate location of face center
+		for (int k = 0; k <= config.DIM-1; k++)
+		{
+			faces[f].geo.x[k]	= 0.0;	// Initialize value
+			for (int n = 0; n <= faces[f].conn.numNodes-1; n++)
+			{
+				faces[f].geo.x[k]	+= faces[f].conn.listNodes[n]->geo.x[k];
+			}
+
+			faces[f].geo.x[k]	/= faces[f].conn.numNodes;
+
+			if (faces[f].geo.x[k] != faces[f].geo.x[k])
+			{
+				Common::ExceptionGeneral(FromHere(), "NaN value for face center location", "NaNValue:");
+			}
+
+			if (fabs(faces[f].geo.x[k]) == numeric_limits<double>::infinity())
+			{
+				Common::ExceptionGeneral(FromHere(), "Infinite value for face center location", "InfValue:");
+			}
+		}
+
+
+		// 2. Calculate Area
+		switch (faces[f].geo.type)
+		{
+		case GRID::f_point:
+			faces[f].geo.S	= 0.0;
+			break;
+
+		case GRID::f_line:
+			faces[f].geo.S 	= MATH::CalLength(faces[f].conn.listNodes[0]->geo.x, faces[f].conn.listNodes[1]->geo.x);
+			break;
+
+		case GRID::f_quadrilateral:
+			faces[f].geo.S 	= MATH::CalAreaQuadrilateral(faces[f].conn.listNodes[0]->geo.x, faces[f].conn.listNodes[1]->geo.x, faces[f].conn.listNodes[2]->geo.x, faces[f].conn.listNodes[3]->geo.x);
+			break;
+		}
+
+
+		// 3. Find directional vectors
+		MATH::VECTOR	face_normal;
+		MATH::VECTOR 	face_tan;
+
+
+		if (faces[f].geo.type == GRID::f_point)
+		{
+			faces[f].geo.n[0][0]	= 0.0;
+			faces[f].geo.n[0][1]	= 0.0;
+
+			faces[f].geo.n[1][0]	= 0.0;
+			faces[f].geo.n[1][1]	= 0.0;
+		}
+		else if (faces[f].geo.type == GRID::f_line)
+		{
+			MATH::VECTOR	n12(faces[f].conn.listNodes[0]->geo.x, faces[f].conn.listNodes[1]->geo.x);
+			n12.normalize();
+
+			face_normal(1) = n12(2);
+			face_normal(2) = -n12(1);
+
+			faces[f].geo.n[0][0]	= face_normal(1);
+			faces[f].geo.n[0][1]	= face_normal(2);
+
+			faces[f].geo.n[1][0]	= n12(1);
+			faces[f].geo.n[1][1]	= n12(2);
+		}
+		else if(faces[f].geo.type == GRID::f_quadrilateral)
+		{
+			MATH::VECTOR V1(faces[f].conn.listNodes[1]->geo.x, faces[f].conn.listNodes[0]->geo.x);
+			MATH::VECTOR V2(faces[f].conn.listNodes[2]->geo.x, faces[f].conn.listNodes[0]->geo.x);
+			MATH::VECTOR V3(faces[f].conn.listNodes[3]->geo.x, faces[f].conn.listNodes[0]->geo.x);
+
+			face_normal	= NormalFromThreePoint(V1, V2, V3);
+			face_normal.normalize();
+
+			V2.normalize();
+
+			face_tan	= VectorCrossProduct(face_normal, V2);
+			face_tan.normalize();
+
+			faces[f].geo.n[0][0]	=  face_normal(1);
+			faces[f].geo.n[0][1]	=  face_normal(2);
+			faces[f].geo.n[0][2]	=  face_normal(3);
+
+			faces[f].geo.n[1][0]	=  V2(1);
+			faces[f].geo.n[1][1]	=  V2(2);
+			faces[f].geo.n[1][2]	=  V2(3);
+
+			faces[f].geo.n[2][0]	=  face_tan(1);
+			faces[f].geo.n[2][1]	=  face_tan(2);
+			faces[f].geo.n[2][2]	=  face_tan(3);
+		}
+		else
+		{
+			Common::ExceptionGeneral (FromHere(), "Selected Face type is not supported", "NoSuchValue");
+		}
+	}
+}
+
+
 
 
 // 3. Cell Data
@@ -200,7 +306,7 @@ void GridProcessingGeometryCell(OP2A::GRID::Configuration&	config, std::vector<G
 		for (int k = 0; k <= config.DIM-1; k++)
 		{
 			cells[c].geo.x[k]	= 0.0;	// Initialize value
-			for (int n = 0; n <= cells[c].conn.numNeighborCells-1; n++)
+			for (int n = 0; n <= cells[c].conn.numNodes-1; n++)
 			{
 				cells[c].geo.x[k]	+= cells[c].conn.listNodes[n]->geo.x[k];
 			}
@@ -458,7 +564,7 @@ void GridProcessingGeometryCellCart(OP2A::GRID::Configuration&	config, std::vect
 }
 
 
-
+// 5. Ghost Data
 void GridProcessingGeometryGhost(OP2A::GRID::Configuration&	config, std::vector<GRID::Face>& faces, std::vector<GRID::Cell>& ghosts)
 {
 	int counter = 0;
@@ -536,7 +642,7 @@ void GridProcessingGeometryGhost(OP2A::GRID::Configuration&	config, std::vector<
 }
 
 
-void GridProcessingGeometryGhostCart(OP2A::GRID::Configuration&	config, std::vector<GRID::Face>& faces, std::vector<GRID::CellCart>& ghosts)
+void GridProcessingGeometryGhostCart(OP2A::GRID::Configuration&	config, std::vector<GRID::FaceCart>& faces, std::vector<GRID::CellCart>& ghosts)
 {
 	int counter = 0;
 
@@ -565,7 +671,7 @@ void GridProcessingGeometryGhostCart(OP2A::GRID::Configuration&	config, std::vec
 			ghosts[counter].conn.listFaces[0] = &faces[f];
 
 			ghosts[counter].conn.numNodes	= faces[f].conn.numNodes;
-			ghosts[counter].conn.numNodes	= faces[f].conn.listNodes;
+			ghosts[counter].conn.listNodes	= faces[f].conn.listNodes;
 		}
 		else if (faces[f].conn.cl[0]	== NULL)
 		{
@@ -601,16 +707,29 @@ void GridProcessingGeometryGhostCart(OP2A::GRID::Configuration&	config, std::vec
 			ghosts[counter].conn.listFaces[0] = &faces[f];
 
 			ghosts[counter].conn.numNodes	= faces[f].conn.numNodes;
-			ghosts[counter].conn.numNodes	= faces[f].conn.listNodes;
+			ghosts[counter].conn.listNodes	= faces[f].conn.listNodes;
 		}
 	}
 
 
 	if (counter != config.NGM)
 	{
-		ExceptionGeneral (FromHere(), "PROBLEM IN the creation of ghost-Cell DATA. TOTAL NUMBER OF created ghost-Cell DATA DOES NOT MATHCH WITH MESH INFOMATION DATA", "GridDataMismatch:");
+		Common::ExceptionGeneral (FromHere(), "PROBLEM IN the creation of ghost-Cell DATA. TOTAL NUMBER OF created ghost-Cell DATA DOES NOT MATHCH WITH MESH INFOMATION DATA", "GridDataMismatch:");
 	}
 }
+
+
+
+
+
+
+void GridProcessing(Grid<GRID::Node, GRID::Face, GRID::Cell, GRID::Cell>& grid)
+{
+	GridProcessingGeometryNode(grid.config, grid.nodes);
+
+
+}
+
 
 
 

@@ -13,7 +13,7 @@
 #include "GaussianPulse.hpp"
 
 namespace OP2A{
-namespace FDTD1D{
+namespace FDTD{
 
 
 

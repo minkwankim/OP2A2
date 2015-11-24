@@ -43,17 +43,23 @@ static const std::string	Cv_tr		= "TranslationRotationalSpecificHeat";
 static const std::string	Cv_tr_mix	= "TranslationRotationalMixtureSpecificHeat";
 static const std::string	Cv_tr_s		= "TranslationRotationalSpeciesSpecificHeat";
 
+static const std::string	epsilon_EM	= "Permittivity";
+
 static const std::string	kappa		= "ThermalConductivity";
 static const std::string	kappa_tra	= "TranslationalThermalConductivity";
 static const std::string	kappa_rot	= "RotationalThermalConductivity";
 static const std::string	kappa_vib	= "VibrationThermalConductivity";
 static const std::string	kappa_tr	= "TranslationalRotationalThermalConductivity";
 
+static const std::string	mu_EM		= "Permeability";
 
 static const std::string	phi			= "Potential";
 
 static const std::string	rho_s		= "SpeciesDensity";
 static const std::string	rho_mix		= "MixtureDensity";
+
+static const std::string	sigma		= "Conductivity";
+static const std::string	sigma_m		= "MagneticConductivity";
 
 static const std::string	T			= "Temperature";
 static const std::string	T_tra		= "TranslationalTemperature";

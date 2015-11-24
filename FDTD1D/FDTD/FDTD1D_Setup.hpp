@@ -20,41 +20,29 @@
 namespace OP2A{
 namespace FDTD{
 
-class Configuration
+class FDTD1D_SETUP
 {
 	/*
 	 * I. Member Variables
 	 */
 public:
-	int 	maxIter;	// Maximum number of iteration;
-	double	maxTime;	// Maximum simulation simulation time
-	double	dt;			// Time step
-	double 	Sc;			// Courant number
+	unsigned int maxTimeStep;
+	double 	Sc;					// Courant Number
 
+	double	dt;			// Time step
 	int 	n;		// Current iteration number
 	double	t;	// Current simulation time
 
 private:
-	bool m_isCompleted;
 
 
 	/*
 	 * II. Constructor and Destructor
 	 */
 public:
-	Configuration()
-	{
-		maxIter	= 0;	// Maximum number of iteration;
-		maxTime	= 0.0;	// Maximum simulation simulation time
-		dt		= 0.0;			// Time step
-		Sc		= 0.0;			// Courant number
+	FDTD1D_SETUP();
+	~FDTD1D_SETUP();
 
-		n		= 0;		// Current iteration number
-		t		= 0.0;	// Current simulation time
-
-
-		 m_isCompleted = false;
-	}
 
 
 	/*

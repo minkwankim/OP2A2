@@ -24,8 +24,16 @@ class GridBasicElement
 	 * I. Constructor and Destructor
 	 */
 public:
-	GridBasicElement():m_type(-1), next(NULL), previous(NULL){	};
-	GridBasicElement(Geometry i_geo, Connectivity i_conn, DataType i_data): geo(i_geo), conn(i_conn), data(i_data), m_type(-1),  next(NULL), previous(NULL){		};
+	GridBasicElement()
+	:m_type(-1), next(NULL), previous(NULL)
+	{
+
+	};
+	GridBasicElement(Geometry i_geo, Connectivity i_conn, DataType i_data)
+	: geo(i_geo), conn(i_conn), data(i_data), m_type(-1),  next(NULL), previous(NULL)
+	{
+
+	};
 
 	~GridBasicElement() { };
 

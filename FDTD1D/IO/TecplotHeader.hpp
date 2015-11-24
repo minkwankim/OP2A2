@@ -26,14 +26,14 @@
 namespace OP2A{
 namespace IO{
 
-/*
+
 enum IO_Tecplot_Header
 {
 	FULL		=	0,
 	GRID		=	1,
 	SOLUTION	=	2
 };
-*/
+
 
 /*
  * Class for Tecplot Header
@@ -48,8 +48,8 @@ class TecplotHeader
 	 * I. Constructor and Destructor
 	 */
 public:
-	TecplotHeader():filetype(0), m_filled(false){	};
-	TecplotHeader(const std::string& tec_title, int tec_filetype, const std::vector<std::string>& tec_variables)	:title(tec_title), filetype(tec_filetype), variables(tec_variables), m_filled(true){	};
+	TecplotHeader():filetype(0), m_filled(false), startVar(0), endVar(0){	};
+	TecplotHeader(const std::string& tec_title, int tec_filetype, const std::vector<std::string>& tec_variables)	:title(tec_title), filetype(tec_filetype), variables(tec_variables), m_filled(true), startVar(0), endVar(0){	};
 
 	~TecplotHeader(){	};
 
@@ -61,6 +61,9 @@ public:
 	std::string					title;
 	int							filetype;
 	std::vector<std::string>	variables;
+	int  						startVar;
+	int  						endVar;
+
 private:
 	bool m_filled;
 
@@ -71,7 +74,13 @@ private:
 public:
 	void writeASCII(const std::string& filename);
 	void writeBinary(const std::string& filename);
+
+
 };
+
+
+
+
 
 }
 }

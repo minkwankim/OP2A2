@@ -24,6 +24,10 @@
 #include "./GRID/ConnectivityFace.hpp"
 #include "./GRID/ConnectivityCell.hpp"
 
+#include "./GRID/ConnectivityFaceCart.hpp"
+#include "./GRID/ConnectivityCellCart.hpp"
+
+
 #include "./GRID/Configuration.hpp"
 
 #include "./DATA/DataBasic.hpp"
@@ -32,27 +36,16 @@
 namespace OP2A{
 namespace GRID{
 
-class Cell:public OP2A::GridBasicElement<OP2A::GRID::GeometryCell,	OP2A::GRID::ConnectivityCell, OP2A::DATA::DataBasic>
-{
+class Node: public OP2A::GridBasicElement<OP2A::GRID::GeometryNode, 		OP2A::GRID::ConnectivityNode, OP2A::DATA::DataBasic>	{	};
 
-};
+class Face: 	public OP2A::GridBasicElement<OP2A::GRID::GeometryFace, 		OP2A::GRID::ConnectivityFace, 		OP2A::DATA::DataBasic>	{	};
+class FaceCart: public OP2A::GridBasicElement<OP2A::GRID::GeometryFace, 		OP2A::GRID::ConnectivityFaceCart,	OP2A::DATA::DataBasic>	{	};
 
-class CellCart: public OP2A::GridBasicElement<OP2A::GRID::GeometryCellCart, 	OP2A::GRID::ConnectivityCell, OP2A::DATA::DataBasic>
-{
-
-};
+class Cell:		public OP2A::GridBasicElement<OP2A::GRID::GeometryCell,			OP2A::GRID::ConnectivityCell, 		OP2A::DATA::DataBasic>	{	};
+class CellCart: public OP2A::GridBasicElement<OP2A::GRID::GeometryCellCart, 	OP2A::GRID::ConnectivityCellCart, 	OP2A::DATA::DataBasic>	{	};
 
 
-class Face: public OP2A::GridBasicElement<OP2A::GRID::GeometryFace, 		OP2A::GRID::ConnectivityFace, OP2A::DATA::DataBasic>
-{
 
-};
-
-
-class Node: public OP2A::GridBasicElement<OP2A::GRID::GeometryNode, 		OP2A::GRID::ConnectivityNode, OP2A::DATA::DataBasic>
-{
-
-};
 
 
 //typedef	OP2A::GridBasicElement<OP2A::GRID::GeometryCell, 		OP2A::GRID::ConnectivityCell, OP2A::DATA::DataBasic>	Cell;

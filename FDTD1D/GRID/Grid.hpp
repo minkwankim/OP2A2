@@ -12,9 +12,13 @@
 #ifndef GRID_HPP_
 #define GRID_HPP_
 
+#include <typeinfo>
 #include "./GRID/GridTypeDefinitions.hpp"
+#include "./DATA/DataSamples.hpp"
 
 #define	OP2A_GRID_AXISSYMMETRIC_ADD	1.0e-9
+#define	OP2A_GRID_MATH_ZERO			1.0e-20
+
 
 
 namespace OP2A{
@@ -33,6 +37,10 @@ public:
 	std::vector<FACE>		faces;
 	std::vector<CELL>		cells;
 	std::vector<GHOST>		ghosts;
+
+	std::vector<int>		whereisNode;
+	std::vector<int>		whereisFace;
+	std::vector<int>		whereisCell;
 
 private:
 	std::vector<int>	m_bc_zone;
@@ -84,6 +92,11 @@ public:
 			faces.resize(config.NFM+1);
 			cells.resize(config.NCM+1);
 			ghosts.resize(config.NGM+1);
+
+			whereisNode.resize(config.NNM+1);
+			whereisFace.resize(config.NFM+1);
+			whereisCell.resize(config.NCM+1);
+
 
 			m_isAllocated = true;
 		}
@@ -203,20 +216,137 @@ public:
 		initializeCell(iCell);
 		initializeGhost(iGhost);
 	}
+
+
+	// MF-PUB-07 Access m_bc_zone
+	std::vector<int>&	accessBCzone()
+	{
+		return (m_bc_zone);
+	}
+
+
+
 };
 
 
 
+template <class GRIDTYPE, class DATATYPE>
+void GridAllocateData(const int num, std::vector<GRIDTYPE>& elements)
+{
+	if (typeid(elements[0]) != typeid(GRID::Node) &&
+		typeid(elements[0]) != typeid(GRID::Face) &&
+		typeid(elements[0]) != typeid(GRID::Cell) &&
+		typeid(elements[0]) != typeid(GRID::FaceCart) &&
+		typeid(elements[0]) != typeid(GRID::CellCart))
+	{
+		OP2A::Common::ExceptionGeneral(FromHere(), "The given grid element type is not supported grid element type. Please check the provided grid element type:",  "NotSupportedType:");
+	}
+
+	DATATYPE tempData;
+	for (int i = 0; i <= num; i++)	elements[i].data = tempData;
+}
+
+
+
+
+/*
+ * ==========================================
+ * Grid1D class
+ * 	Initially written by:	Minkwan Kim
+ * 	Last modified on	:	May/14/2015
+ * 	Last modified by	:	Minkwan Kim
+ * =========================================
+ */
+
+class Grid1D
+{
+	/*
+	 * I. Constructor and Destructor
+	 */
+public:
+	Grid1D();
+	Grid1D(const unsigned int nfm);
+	~Grid1D();
+
+	/*
+	 * II. Member Variables
+	 */
+public:
+	OP2A::GRID::Configuration	config;
+	std::vector<GRID::Node>		nodes;
+	std::vector<GRID::Face>		faces;
+
+	std::vector<int>	whereisNode;
+	std::vector<int>	whereisFace;
+
+private:
+	bool				m_isAllocated;
+	bool				m_isInit;
+	bool				m_isInitNode;
+	bool				m_isInitFace;
+
+
+	/*
+	 * III. Member Functions
+	 */
+public:
+	// MF-PUB-01 - allocateGrid
+	// @param newSize new size of vector
+	// @return Void
+	void allocateGrid();
+	void allocateGrid(const unsigned int nfm);
+
+
+	// MF-PUB-02 - resizeNode
+	// @param newSize new size of vector
+	// @return Void
+	void resizeNode(const unsigned int nnm);
+
+	// MF-PUB-03 - resizeFace
+	// @param newSize new size of vector
+	// @return Void
+	void resizeFace(const unsigned int nnm);
+
+
+	// MF-PUB-04 - initialize
+	void initializeNode(const GRID::Node& i_node);
+	void initializeFace(const GRID::Face& i_face);
+};
+
+Grid1D GridGen1Dv2(const double x0, const double xL, const int nfm, const int gridFlag);
+Grid<GRID::Node, GRID::Face, GRID::Cell, GRID::Cell> GridGen1D(const double x0, const double xL, const int N, const int gridFlag);
+
+
+
+
+
+
+
+
+
+
+
 void GridProcessingGeometryNode(OP2A::GRID::Configuration&	config, std::vector<GRID::Node>& nodes);
+
 void GridProcessingGeometryFace(OP2A::GRID::Configuration&	config, std::vector<GRID::Face>& faces);
+void GridProcessingGeometryFace(OP2A::GRID::Configuration&	config, std::vector<GRID::FaceCart>& faces);
+
 void GridProcessingGeometryCell(OP2A::GRID::Configuration&	config, std::vector<GRID::Cell>& cells);
 void GridProcessingGeometryCellCart(OP2A::GRID::Configuration&	config, std::vector<GRID::CellCart>& cells);
-void GridProcessingGeometryGhost(OP2A::GRID::Configuration&	config, std::vector<GRID::Cell>& ghosts);
-void GridProcessingGeometryGhostCart(OP2A::GRID::Configuration&	config, std::vector<GRID::CellCart>& ghosts);
+
+void GridProcessingGeometryGhost(OP2A::GRID::Configuration&	config, 	std::vector<GRID::Face>& faces, 	std::vector<GRID::Cell>& ghosts);
+void GridProcessingGeometryGhostCart(OP2A::GRID::Configuration&	config, std::vector<GRID::FaceCart>& faces, std::vector<GRID::CellCart>& ghosts);
 
 
 
-Grid<GRID::Node, GRID::Face, GRID::Cell, GRID::Cell> GridGen1D(const double x0, const double xL, const int N, const int gridFlag);
+void GridProcessing(Grid<GRID::Node, GRID::Face, GRID::Cell, GRID::Cell>& grid);
+void GridProcessingCart(Grid<GRID::Node, GRID::FaceCart, GRID::CellCart, GRID::CellCart>& grid);
+
+
+
+
+
+
 
 
 }

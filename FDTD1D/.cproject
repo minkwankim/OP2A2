@@ -15,7 +15,12 @@
 					<folderInfo id="intel.linux.x86_64.exe.rel.532770614._14.0.0" name="/" resourcePath="">
 						<toolChain id="intel.toolchain.linux.x86_64.exe.rel.261507577_14.0.0" name="Intel Toolchain for Executable on Intel(R) 64" superClass="intel.toolchain.linux.x86_64.exe.rel_14.0.0">
 							<targetPlatform archList="x86_64" binaryParser="org.eclipse.cdt.core.ELF" id="intel.platform.linux.x86_64.exe.rel_14.0.0.91303536" name="Platform.Executable.Release" osList="linux" superClass="intel.platform.linux.x86_64.exe.rel_14.0.0"/>
-							<builder arguments="-j12" buildPath="${workspace_loc:/FDTD1D}/Release" command="make" id="intel.builder.linux.x86_64.exe.rel.672710163_14.0.0" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Intel Builder" superClass="intel.builder.linux.x86_64.exe.rel_14.0.0"/>
+							<builder arguments="-j12" buildPath="${workspace_loc:/FDTD1D}/Release" command="make" id="intel.builder.linux.x86_64.exe.rel.672710163_14.0.0" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Intel Builder" superClass="intel.builder.linux.x86_64.exe.rel_14.0.0">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Release"/>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Debug"/>
+								</outputEntries>
+							</builder>
 							<tool command="icpc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="intel.cpp.compilestep.linux.x86_64.exe.rel.1782389183_14.0.0" name="Intel Intel(R) 64 C++ Compiler " superClass="intel.cpp.compilestep.linux.x86_64.exe.rel_14.0.0">
 								<option id="intel.compilestep.preprocessor.includedirectories.1032202520" name="Additional Include Directories (-I)" superClass="intel.compilestep.preprocessor.includedirectories" valueType="includePath">
 									<listOptionValue builtIn="false" value="/home/user/git/OP2A2/FDTD1D"/>
@@ -38,6 +43,15 @@
 								<inputType id="intel.cpp.compilestep.input.1647767741" superClass="intel.cpp.compilestep.input"/>
 							</tool>
 							<tool id="intel.c.compilestep.linux.x86_64.exe.rel.1177024203_14.0.0" name="Intel Intel(R) 64 C Compiler" superClass="intel.c.compilestep.linux.x86_64.exe.rel_14.0.0">
+								<option id="intel.compilestep.preprocessor.includedirectories.1836488478" superClass="intel.compilestep.preprocessor.includedirectories" valueType="includePath">
+									<listOptionValue builtIn="false" value="/home/user/git/OP2A2/FDTD1D"/>
+									<listOptionValue builtIn="false" value="/home/user/intel/include"/>
+									<listOptionValue builtIn="false" value="/home/user/intel/mkl/include"/>
+									<listOptionValue builtIn="false" value="/home/user/Software/lapack/include/lapackpp"/>
+								</option>
+								<option id="intel.compilestep.preprocessor.defsym.1061612231" superClass="intel.compilestep.preprocessor.defsym" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="OS_LINUX"/>
+								</option>
 								<inputType id="intel.c.compilestep.input.1394220457" superClass="intel.c.compilestep.input"/>
 							</tool>
 							<tool id="intel.c.linkstep.linux.x86_64.exe.rel.491956128_14.0.0" name="Intel Intel(R) 64 C Linker" superClass="intel.c.linkstep.linux.x86_64.exe.rel_14.0.0">
@@ -60,11 +74,7 @@
 								<option id="intel.linkstep.perflibs.mkl.1482518136" name="Use Intel(R) Math Kernel Library (-mkl=[arg])" superClass="intel.linkstep.perflibs.mkl" value="perflibs.mkl.parallel" valueType="enumerated"/>
 								<option id="intel.linkstep.debugparallel.1674726966" name="Enable Parallel Debug Checks (-debug parallel)" superClass="intel.linkstep.debugparallel" value="true" valueType="boolean"/>
 								<option id="intel.linkstep.general.optimization2.1890578281" name="Optimization Level" superClass="intel.linkstep.general.optimization2" value="general.opt.none" valueType="enumerated"/>
-								<option id="intel.linkstep.libname.458785124" name="Additional Libraries (-l)" superClass="intel.linkstep.libname" valueType="libs">
-									<listOptionValue builtIn="false" value="stdc++"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="&quot;${workspace_loc:/FDTD1D/tecio/libtecio.a}&quot;"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="/home/user/Software/tecplot360ex/lib/libtecio.a"/>
-								</option>
+								<option id="intel.linkstep.libname.458785124" name="Additional Libraries (-l)" superClass="intel.linkstep.libname" valueType="libs"/>
 								<inputType id="intel.linkstep.input.1095701482" superClass="intel.linkstep.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -79,8 +89,8 @@
 								<option id="intel.compilestep.general.optimization.cpp.x86_64.exe.rel.224112922_14.0.0" name="Optimization Level" superClass="intel.compilestep.general.optimization.cpp.x86_64.exe.rel_14.0.0" value="general.opt.none" valueType="enumerated"/>
 								<option id="intel.compilestep.debug.parallel.610617906" name="Enable Parallel Debug Checks (-debug parallel)" superClass="intel.compilestep.debug.parallel" value="false" valueType="boolean"/>
 								<option id="intel.compilestep.preprocessor.includedirectories.337031318" name="Additional Include Directories (-I)" superClass="intel.compilestep.preprocessor.includedirectories" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/user/git/OP2A2/FDTD1D"/>
 									<listOptionValue builtIn="false" value="/home/user/Software/tecplot360ex/include"/>
+									<listOptionValue builtIn="false" value="/home/user/git/OP2A2/FDTD1D"/>
 									<listOptionValue builtIn="false" value="/home/user/intel/include"/>
 									<listOptionValue builtIn="false" value="/home/user/intel/mkl/include"/>
 									<listOptionValue builtIn="false" value="/home/user/Software/lapack/include/lapackpp"/>
@@ -94,6 +104,13 @@
 								<option id="intel.compilestep.general.warninglevel.1310025099" name="Warning Level" superClass="intel.compilestep.general.warninglevel" value="general.warninglevel.remarks" valueType="enumerated"/>
 								<option id="intel.compilestep.perflibs.tbb.1257951641" name="Use Intel(R) Threading Building Blocks Library (-tbb)" superClass="intel.compilestep.perflibs.tbb" value="true" valueType="boolean"/>
 								<option id="intel.compilestep.perflibs.mkl.1679336592" name="Use Intel(R) Math Kernel Library (-mkl=[arg])" superClass="intel.compilestep.perflibs.mkl" value="perflibs.mkl.parallel" valueType="enumerated"/>
+								<option id="intel.compilestep.preprocessor.includedirectories.2007899889" superClass="intel.compilestep.preprocessor.includedirectories" valueType="includePath">
+									<listOptionValue builtIn="false" value="/home/user/Software/tecplot360ex/include"/>
+									<listOptionValue builtIn="false" value="/home/user/git/OP2A2/FDTD1D"/>
+									<listOptionValue builtIn="false" value="/home/user/intel/include"/>
+									<listOptionValue builtIn="false" value="/home/user/intel/mkl/include"/>
+									<listOptionValue builtIn="false" value="/home/user/Software/lapack/include/lapackpp"/>
+								</option>
 								<inputType id="intel.c.compilestep.input.2075628227" superClass="intel.c.compilestep.input"/>
 							</tool>
 							<tool id="intel.c.linkstep.linux.x86_64.exe.rel.834981484_14.0.0" name="Intel Intel(R) 64 C Linker" superClass="intel.c.linkstep.linux.x86_64.exe.rel.491956128_14.0.0">
@@ -105,7 +122,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="FDTD/OutputTecplotHeader.cpp|OutputTecplotHeader.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -207,7 +224,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="FDTD/OutputTecplotHeader.cpp|OutputTecplotHeader.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -238,10 +255,10 @@
 		<scannerConfigBuildInfo instanceId="intel.linux.x86_64.exe.rel.532770614_14.0.0;intel.linux.x86_64.exe.rel.532770614._14.0.0;intel.c.compilestep.linux.x86_64.exe.rel.1177024203_14.0.0;intel.c.compilestep.input.1394220457">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.intel.compiler.cdt.managedbuilder.ui.ICCManagedMakePerProjectProfile"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="intel.linux.x86_64.exe.dbg.2085858138_14.0.0;intel.linux.x86_64.exe.dbg.2085858138._14.0.0;intel.c.compilestep.linux.x86_64.exe.dbg.1025743537_14.0.0;intel.c.compilestep.input.794792496">
+		<scannerConfigBuildInfo instanceId="intel.linux.x86_64.exe.rel.532770614_14.0.0;intel.linux.x86_64.exe.rel.532770614._14.0.0;intel.cpp.compilestep.linux.x86_64.exe.rel.1782389183_14.0.0;intel.cpp.compilestep.input.1647767741">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.intel.compiler.cdt.managedbuilder.ui.ICCManagedMakePerProjectProfile"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="intel.linux.x86_64.exe.rel.532770614_14.0.0;intel.linux.x86_64.exe.rel.532770614._14.0.0;intel.cpp.compilestep.linux.x86_64.exe.rel.1782389183_14.0.0;intel.cpp.compilestep.input.1647767741">
+		<scannerConfigBuildInfo instanceId="intel.linux.x86_64.exe.dbg.2085858138_14.0.0;intel.linux.x86_64.exe.dbg.2085858138._14.0.0;intel.c.compilestep.linux.x86_64.exe.dbg.1025743537_14.0.0;intel.c.compilestep.input.794792496">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.intel.compiler.cdt.managedbuilder.ui.ICCManagedMakePerProjectProfile"/>
 		</scannerConfigBuildInfo>
 	</storageModule>

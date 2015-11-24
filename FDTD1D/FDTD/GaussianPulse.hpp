@@ -18,7 +18,7 @@
 
 
 namespace OP2A{
-namespace FDTD1D{
+namespace FDTD{
 
 class GaussianPulse{
 	/*
