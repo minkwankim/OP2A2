@@ -275,9 +275,11 @@ public:
 	OP2A::GRID::Configuration	config;
 	std::vector<GRID::Node>		nodes;
 	std::vector<GRID::Face>		faces;
+	std::vector<GRID::Face>		ghosts;
 
-	std::vector<int>	whereisNode;
-	std::vector<int>	whereisFace;
+	Common::Map1D<double, int>	mapNode;
+	Common::Map1D<double, int>	mapFace;
+
 
 private:
 	bool				m_isAllocated;
@@ -310,10 +312,17 @@ public:
 
 	// MF-PUB-04 - initialize
 	void initializeNode(const GRID::Node& i_node);
+	void initializeNode(const GRID::Node& i_node, bool isOnlyData);
+
 	void initializeFace(const GRID::Face& i_face);
+	void initializeFace(const GRID::Face& i_face, bool isOnlyData);
+
+	// MF-PUB-05 - Node/Face
+	GRID::Node&	NODE(const double i);
+	GRID::Face&	FACE(const double i);
 };
 
-Grid1D GridGen1Dv2(const double x0, const double xL, const int nfm, const int gridFlag);
+void GridGen1Dv2(const double x0, const double xL, const int nfm, Grid1D& grid);
 Grid<GRID::Node, GRID::Face, GRID::Cell, GRID::Cell> GridGen1D(const double x0, const double xL, const int N, const int gridFlag);
 
 

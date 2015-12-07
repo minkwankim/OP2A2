@@ -99,7 +99,6 @@ void Tecplot::setDatatype(unsigned int i)
 void Tecplot::WriteHeader(const std::string& tec_title, int tec_filetype, int dim)
 {
 	m_dim = dim;
-	setVariables();
 
 	header.title 		= tec_title;
 	header.filetype 	= tec_filetype;
@@ -111,9 +110,25 @@ void Tecplot::WriteHeader(const std::string& tec_title, int tec_filetype, int di
 	m_headerReady = true;
 }
 
-void Tecplot::setVariables()
+void Tecplot::WriteHeader(const std::string& tec_title, int tec_filetype, int dim, const std::vector<string>& variableNames)
 {
+	m_dim = dim;
+	setVariables(variableNames);
 
+	header.title 		= tec_title;
+	header.filetype 	= tec_filetype;
+	header.variables	= m_tec_variables;
+
+	header.startVar 	= m_dim + 1;
+	header.endVar		= m_tec_variables.size();
+
+	m_headerReady = true;
+}
+
+
+void Tecplot::setVariables(const std::vector<string>& variableNames)
+{
+	m_tec_variables = variableNames;
 }
 
 
@@ -198,14 +213,15 @@ void Tecplot::setTimeplot(int strandID, double solTime)
 	m_solTime		= solTime;
 }
 
-void Tecplot::setUsingBlockDataPack()
+void Tecplot::setUsingBlockDataPack(bool flag)
 {
-	m_useBlockData = true;
+	m_useBlockData = flag;
 }
 
-void Tecplot::setUsingNodalData()
+void Tecplot::setUsingNodalData(bool flag)
 {
-	m_useCellCenterData = false;
+	if (flag == true)	m_useCellCenterData = false;
+	else				m_useCellCenterData = true;
 }
 
 
@@ -241,10 +257,29 @@ void Tecplot::PrepareFile()
 	{
 		Common::ExceptionGeneral(FromHere(), "Zone data is not prepared. Need to prepare it, first.", "NeedPreAction:");
 	}
-
-
-
 }
+
+void Tecplot::PrepareFile(const string& filename)
+{
+	if (m_headerReady == true)
+	{
+		header.writeASCII(filename.c_str());
+	}
+	else
+	{
+		Common::ExceptionGeneral(FromHere(), "Header data is not prepared. Need to prepare it, first.", "NeedPreAction:");
+	}
+
+	if (m_zoneReady == true)
+	{
+		zone.writeASCII(filename.c_str());
+	}
+	else
+	{
+		Common::ExceptionGeneral(FromHere(), "Zone data is not prepared. Need to prepare it, first.", "NeedPreAction:");
+	}
+}
+
 
 
 } /* namespace IO */

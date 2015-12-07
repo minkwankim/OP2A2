@@ -26,24 +26,41 @@ public:
 	/*
 	 * I. Constructor and Destructor
 	 */
-	Harmonic(double the_amp, double the_phase):amp(the_amp), phase(the_phase){	};
-	Harmonic():amp(0.0), phase(0.0){	};
+	Harmonic(double i_Nlambda, double i_Sc, double i_mu_r, double i_eps_r)
+	:N_lambda(i_Nlambda), Sc(i_Sc), mu_r(i_mu_r), eps_r(i_eps_r)
+	{
 
-	~Harmonic(){	};
+	};
+
+	Harmonic()
+	:N_lambda(0), Sc(1), mu_r(1), eps_r(1)
+	{
+
+	};
+
+	~Harmonic()
+	{
+
+	};
 
 
 public:
 	/*
 	 * II. Member Variables
 	 */
-	double amp;
-	double phase;
+	double N_lambda;
+	double Sc;
+	double mu_r;
+	double eps_r;
+
 
 
 	/*
 	 * III. Member Functions
 	 */
-	double harminic_fn(double x);
+public:
+	double ezInc(double time, double location);
+
 };
 
 

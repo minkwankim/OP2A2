@@ -91,7 +91,7 @@ FDTD1D_GRIDv2::~FDTD1D_GRIDv2()
 
 void FDTD1D_GRIDv2::Setup(unsigned int nfm, double x0, double xL)
 {
-	config.Configure(1, nfm+1, nfm, 1, 2, 1.0, false);
+	config.Configure(1, nfm+1, nfm, 0, 2, 1.0, false);
 	allocateGrid();
 
 	DATA::dataSampleFDTD1D	datasample;
@@ -103,8 +103,14 @@ void FDTD1D_GRIDv2::Setup(unsigned int nfm, double x0, double xL)
 
 	initializeNode(nodesample);
 	initializeFace(facesample);
+	ghosts[0]	= facesample;
+	ghosts[1]	= facesample;
+	ghosts[2]	= facesample;
 
-	// Node positions
+
+	GridGen1Dv2(x0, xL, nfm, *this);
+
+	/*// Node positions
 	double dX = fabs(xL - x0) / nfm;
 	for (int n = 1; n <= config.NNM; n++)
 	{
@@ -118,13 +124,12 @@ void FDTD1D_GRIDv2::Setup(unsigned int nfm, double x0, double xL)
 		whereisNode[n]	= n;
 
 
-		/*
 		if (n > 1)	nodes[n].previous	= &nodes[n-1];
 		else		nodes[n].previous	= NULL;
 
 		if (n < config.NNM)	nodes[n].next = &nodes[n+1];
 		else				nodes[n].next = NULL;
-		*/
+
 	}
 
 	// Faces
@@ -141,16 +146,15 @@ void FDTD1D_GRIDv2::Setup(unsigned int nfm, double x0, double xL)
 
 		whereisFace[f]	= f;
 
-		/*
+
 		if (f > 1)	faces[f].previous	= &faces[f-1];
 		else		faces[f].previous	= NULL;
 
 		if (f < config.NFM)	faces[f].next = &faces[f+1];
 		else				faces[f].next = NULL;
-		*/
 	}
 
-	GridProcessingGeometryFace(config, faces);
+	GridProcessingGeometryFace(config, faces);*/
 }
 
 

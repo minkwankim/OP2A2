@@ -75,6 +75,13 @@ Exception::Exception (CodeLocation where, std::string msg, std::string className
 		std::cout << "+++ Exception backtrace ++++++++++++++" << std::endl;
 		std::cout << "======================================" << std::endl;
 	}
+
+
+#ifdef MPI
+	MPI_Abort(MPI_COMM_WORLD, 0);
+#endif
+
+	abort();
 }
 
 

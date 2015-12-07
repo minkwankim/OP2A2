@@ -39,6 +39,11 @@ public:
 		if(maxSize != 0)	m_vectorMap.reserve(maxSize);
 	}
 
+	Map2D() : m_sorted(false)
+	{
+		m_vectorMap.reserve(1);
+	}
+
 
 	/*
 	 * Destructor

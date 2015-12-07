@@ -58,12 +58,21 @@ FDTD1Dv2::~FDTD1Dv2()
 void FDTD1Dv2::gridSetup(unsigned int nfm, double x0, double xL)
 {
 	face_IC_ID.resize(nfm+1);
-	node_IC_ID.resize(nfm+1+1);
-
 	face_material_ID.resize(nfm+1);
+
+	node_IC_ID.resize(nfm+1+1);
 	node_material_ID.resize(nfm+1+1);
 
-	grid = GridGen1Dv2(x0, xL, nfm, 0);
+	GridGen1Dv2(x0, xL, nfm, grid);
+
+
+	DATA::dataSampleFDTD1D	datasample;
+
+
+	for (int n = 0; n <= grid.config.NNM; n++)	grid.nodes[n].data	= datasample;
+	for (int f = 0; f <= grid.config.NFM; f++)	grid.faces[f].data	= datasample;
+	for (int g = 0; g <= grid.config.NGM; g++)	grid.ghosts[g].data	= datasample;
+
 }
 
 
@@ -81,14 +90,15 @@ void FDTD1Dv2::Initialize()
 	v_mu_EM 		= grid.faces[0].data.dataMapScalar.find(mu_EM);
 	v_sigma			= grid.faces[0].data.dataMapScalar.find(sigma);
 	v_sigma_m 		= grid.faces[0].data.dataMapScalar.find(sigma_m);
-	v_E 			= grid.faces[0].data.dataMapScalar.find(E);
-	v_H 			= grid.faces[0].data.dataMapScalar.find(H);
+
+	v_E 			= grid.faces[0].data.dataMapVector.find(E);
+	v_H 			= grid.faces[0].data.dataMapVector.find(H);
 
 #pragma ivdep
 	for (int f = 1; f <= grid.config.NFM; f++)
 	{
 		int m_index	= face_material_ID[f];
-		grid.faces[f].data.dataScalar[v_epsilon_EM]	= material[m_index].eps;
+		grid.faces[f].data.dataScalar[v_epsilon_EM]		= material[m_index].eps;
 		grid.faces[f].data.dataScalar[v_mu_EM]			= material[m_index].mu;
 		grid.faces[f].data.dataScalar[v_sigma]			= material[m_index].sigma;
 		grid.faces[f].data.dataScalar[v_sigma_m]		= material[m_index].sigma_m;
@@ -104,8 +114,9 @@ void FDTD1Dv2::Initialize()
 	v_mu_EM 		= grid.nodes[0].data.dataMapScalar.find(mu_EM);
 	v_sigma			= grid.nodes[0].data.dataMapScalar.find(sigma);
 	v_sigma_m 		= grid.nodes[0].data.dataMapScalar.find(sigma_m);
-	v_E 			= grid.nodes[0].data.dataMapScalar.find(E);
-	v_H 			= grid.nodes[0].data.dataMapScalar.find(H);
+
+	v_E 			= grid.nodes[0].data.dataMapVector.find(E);
+	v_H 			= grid.nodes[0].data.dataMapVector.find(H);
 
 #pragma ivdep
 	for (int n = 1; n <= grid.config.NNM; n++)

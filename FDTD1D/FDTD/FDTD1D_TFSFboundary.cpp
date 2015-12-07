@@ -43,5 +43,56 @@ void FDTD1D::applyTFSFboundaryE(unsigned int i_node, unsigned int n_time)
 }
 
 
+
+
+
+void FDTD1Dv2::applyTFSFboundary_H(GRID::Face &face)
+{
+	face.data(H,1)	-= face.data(CoeffH,2)*Einc.ezInc(setup.n, 0.0);
+}
+
+
+void FDTD1Dv2::applyTFSFboundary_E(GRID::Node &node)
+{
+	double coeff;
+	int mat_ID	= node_material_ID[node.geo.ID];
+
+	double eps_r = material[mat_ID].eps / EPS0;
+	double mu_r  = material[mat_ID].mu  / MU0;
+
+	coeff	= setup.Sc / sqrt(eps_r * mu_r);
+	node.data(E,1)	+= coeff*Einc.ezInc(setup.n+0.5, -0.5);
+}
+
+
+void FDTD1Dv2::applyTFSFboundary_H()
+{
+	for (int f = 1; f <= grid.config.NFM; f++)
+	{
+		int BC_type	= grid.faces[f].geo.BC;
+
+		if (BC_type == 3)
+		{
+			applyTFSFboundary_H(grid.faces[f]);
+		}
+	}
+}
+
+
+void FDTD1Dv2::applyTFSFboundary_E()
+{
+	for (int n = 1; n <= grid.config.NNM; n++)
+	{
+		int BC_type	= grid.nodes[n].geo.BC;
+
+		if (BC_type == 3)
+		{
+			applyTFSFboundary_E(grid.nodes[n]);
+		}
+	}
+}
+
+
+
 }
 }

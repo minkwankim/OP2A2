@@ -17,11 +17,11 @@
 namespace OP2A{
 namespace FDTD1D{
 
-double Harmonic::harminic_fn(double x)
+double Harmonic::ezInc(double n, double m)
 {
 	double result;
 
-	result	= amp * cos(x + phase);
+	result	= cos(2.0*M_PI/ N_lambda*(Sc*n - sqrt(mu_r*eps_r)*m));
 	return (result);
 }
 

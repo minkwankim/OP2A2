@@ -41,6 +41,11 @@ public:
 		}
 	}
 
+	Map3D() : m_sorted(false)
+	{
+		m_vectorMap.reserve(1);
+	}
+
 	/// Default destructor
 	~Map3D()
 	{
@@ -144,6 +149,32 @@ public:
 	}
 
 
+	VALUE find(const KEY1& aKey1, const KEY2& aKey2, const KEY3& aKey3, bool& isFound)
+	{
+		if(m_vectorMap.empty())
+		{
+			valueNotFound(aKey1,aKey2,aKey3);
+		}
+
+		if(!m_sorted)
+		{
+			sortKeys();
+		}
+
+		MapIterator itr = std::lower_bound(m_vectorMap.begin(), m_vectorMap.end(), make_Trio(aKey1,aKey2,aKey3), LessThan());
+
+		if((itr->first != aKey1) || (itr->second != aKey2) || (itr->third != aKey3))
+		{
+			isFound = false;
+			return (0);
+		}
+
+		isFound = true;
+		return itr->fourth;
+	}
+
+
+	/*
 	std::pair<MapIterator, MapIterator> find(const KEY1& aKey1, const KEY2& aKey2, const KEY3& aKey3, bool& isFound)
 	{
 		if(!m_sorted)
@@ -165,6 +196,7 @@ public:
 
 		return result;
 	}
+	*/
 
 	VALUE find(const Trio<KEY1,KEY2,KEY3>& aKey)
 	{

@@ -25,10 +25,10 @@ dataSampleFDTD1D::dataSampleFDTD1D()
 
 	// Scalar variables
 	i = 0;
-	dataMapVector.insert(epsilon_EM, i);	i++;
-	dataMapVector.insert(mu_EM, i);			i++;
-	dataMapVector.insert(sigma, i);			i++;
-	dataMapVector.insert(sigma_m, i);		i++;
+	dataMapScalar.insert(epsilon_EM, i);	i++;
+	dataMapScalar.insert(mu_EM, i);			i++;
+	dataMapScalar.insert(sigma, i);			i++;
+	dataMapScalar.insert(sigma_m, i);		i++;
 	if (i > 0)	dataScalar.resize(i);
 
 

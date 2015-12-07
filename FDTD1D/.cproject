@@ -43,13 +43,13 @@
 								<inputType id="intel.cpp.compilestep.input.1647767741" superClass="intel.cpp.compilestep.input"/>
 							</tool>
 							<tool id="intel.c.compilestep.linux.x86_64.exe.rel.1177024203_14.0.0" name="Intel Intel(R) 64 C Compiler" superClass="intel.c.compilestep.linux.x86_64.exe.rel_14.0.0">
-								<option id="intel.compilestep.preprocessor.includedirectories.1836488478" superClass="intel.compilestep.preprocessor.includedirectories" valueType="includePath">
+								<option id="intel.compilestep.preprocessor.includedirectories.1836488478" name="Additional Include Directories (-I)" superClass="intel.compilestep.preprocessor.includedirectories" valueType="includePath">
 									<listOptionValue builtIn="false" value="/home/user/git/OP2A2/FDTD1D"/>
 									<listOptionValue builtIn="false" value="/home/user/intel/include"/>
 									<listOptionValue builtIn="false" value="/home/user/intel/mkl/include"/>
 									<listOptionValue builtIn="false" value="/home/user/Software/lapack/include/lapackpp"/>
 								</option>
-								<option id="intel.compilestep.preprocessor.defsym.1061612231" superClass="intel.compilestep.preprocessor.defsym" valueType="definedSymbols">
+								<option id="intel.compilestep.preprocessor.defsym.1061612231" name="Preprocessor Definitions (-D)" superClass="intel.compilestep.preprocessor.defsym" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="OS_LINUX"/>
 								</option>
 								<inputType id="intel.c.compilestep.input.1394220457" superClass="intel.c.compilestep.input"/>
@@ -104,7 +104,7 @@
 								<option id="intel.compilestep.general.warninglevel.1310025099" name="Warning Level" superClass="intel.compilestep.general.warninglevel" value="general.warninglevel.remarks" valueType="enumerated"/>
 								<option id="intel.compilestep.perflibs.tbb.1257951641" name="Use Intel(R) Threading Building Blocks Library (-tbb)" superClass="intel.compilestep.perflibs.tbb" value="true" valueType="boolean"/>
 								<option id="intel.compilestep.perflibs.mkl.1679336592" name="Use Intel(R) Math Kernel Library (-mkl=[arg])" superClass="intel.compilestep.perflibs.mkl" value="perflibs.mkl.parallel" valueType="enumerated"/>
-								<option id="intel.compilestep.preprocessor.includedirectories.2007899889" superClass="intel.compilestep.preprocessor.includedirectories" valueType="includePath">
+								<option id="intel.compilestep.preprocessor.includedirectories.2007899889" name="Additional Include Directories (-I)" superClass="intel.compilestep.preprocessor.includedirectories" valueType="includePath">
 									<listOptionValue builtIn="false" value="/home/user/Software/tecplot360ex/include"/>
 									<listOptionValue builtIn="false" value="/home/user/git/OP2A2/FDTD1D"/>
 									<listOptionValue builtIn="false" value="/home/user/intel/include"/>
@@ -192,6 +192,7 @@
 								<option id="intel.linkstep.general.optimization2.223232916" name="Optimization Level" superClass="intel.linkstep.general.optimization2" value="general.opt.none" valueType="enumerated"/>
 								<option id="intel.linkstep.libname.1795690937" name="Additional Libraries (-l)" superClass="intel.linkstep.libname" valueType="libs">
 									<listOptionValue builtIn="false" value="stdc++"/>
+									<listOptionValue builtIn="false" value="mpi"/>
 								</option>
 								<inputType id="intel.linkstep.input.1101389973" superClass="intel.linkstep.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

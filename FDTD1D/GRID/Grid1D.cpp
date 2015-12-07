@@ -25,10 +25,10 @@ Grid1D::Grid1D()
 }
 
 Grid1D::Grid1D(const unsigned int nfm)
-:nodes(nfm+2), faces(nfm+1), m_isInit(false), m_isInitNode(false), m_isInitFace(false), m_isAllocated(true),
-whereisNode(nfm+2), whereisFace(nfm+1)
+:nodes(nfm+2), faces(nfm+1), ghosts(2),
+ m_isInit(false), m_isInitNode(false), m_isInitFace(false), m_isAllocated(true)
 {
-	config.Configure(1, nfm+1, nfm, 0, 0, 1.0, false);
+	config.Configure(1, nfm+1, nfm, 0, 2, 1.0, false);
 }
 
 
@@ -55,9 +55,7 @@ void Grid1D::allocateGrid()
 	{
 		nodes.resize(config.NNM+1);
 		faces.resize(config.NFM+1);
-
-		whereisNode.resize(config.NNM+1);
-		whereisFace.resize(config.NFM+1);
+		ghosts.resize(config.NGM+1);
 
 
 		m_isAllocated = true;
@@ -71,9 +69,10 @@ void Grid1D::allocateGrid()
 
 void Grid1D::allocateGrid(const unsigned int nfm)
 {
-	config.Configure(1, nfm+1, nfm, 0, 0, 1.0, false);
+	config.Configure(1, nfm+1, nfm, 0, 2, 1.0, false);
 	allocateGrid();
 }
+
 
 // MF-PUB-02 - resizeNode
 // @param newSize new size of vector
@@ -81,7 +80,6 @@ void Grid1D::allocateGrid(const unsigned int nfm)
 void Grid1D::resizeNode(const unsigned int nnm)
 {
 	nodes.resize(nnm+1);
-	whereisNode.resize(nnm+1);
 	config.NNM = nnm;
 }
 
@@ -91,7 +89,6 @@ void Grid1D::resizeNode(const unsigned int nnm)
 void Grid1D::resizeFace(const unsigned int nfm)
 {
 	faces.resize(nfm+1);
-	whereisFace.resize(nfm+1);
 	config.NFM = nfm;
 }
 
@@ -112,6 +109,30 @@ void Grid1D::initializeNode(const GRID::Node& i_node)
 	}
 }
 
+void Grid1D::initializeNode(const GRID::Node& i_node, bool isOnlyData)
+{
+	mk_assert(nodes.size() > 0);
+
+	if (m_isInitNode == false)
+	{
+		if (isOnlyData == true)
+		{
+			for (int n = 0; n <= config.NNM; n++)	nodes[n].data	= i_node.data;
+		}
+		else
+		{
+			for (int n = 0; n <= config.NNM; n++)	nodes[n]	= i_node;
+		}
+
+		m_isInitNode = true;
+	}
+	else
+	{
+		cout << "Nodes in the grid are already initialized!!" << endl;
+	}
+}
+
+
 void Grid1D::initializeFace(const GRID::Face& i_face)
 {
 	mk_assert(faces.size() > 0);
@@ -127,7 +148,43 @@ void Grid1D::initializeFace(const GRID::Face& i_face)
 	}
 }
 
+void Grid1D::initializeFace(const GRID::Face& i_face, bool isOnlyData)
+{
+	mk_assert(faces.size() > 0);
 
+	if (m_isInitFace == false)
+	{
+		if (isOnlyData == true)
+		{
+			for (int f = 0; f <= config.NFM; f++)	faces[f].data	= i_face.data;
+		}
+		else
+		{
+			for (int f = 0; f <= config.NFM; f++)	faces[f]	= i_face;
+		}
+		m_isInitFace = true;
+	}
+	else
+	{
+		cout << "Faces in the grid are already initialized!!" << endl;
+	}
+}
+
+
+// MF-PUB-05 - Node/Face
+GRID::Node&	Grid1D::NODE(const double i)
+{
+	int n = mapNode.find(i);
+	return(nodes[n]);
+}
+
+GRID::Face&	Grid1D::FACE(const double i)
+{
+	int n = mapFace.find(i);
+
+	if (n < 0)	return(ghosts[-n]);
+	else		return(faces[n]);
+}
 
 
 

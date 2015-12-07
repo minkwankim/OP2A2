@@ -93,7 +93,8 @@ public:
 	// @param	tec_filefype	File type (0:Full / 1:Grid / 2:Solution)
 	// @return Void
 	void WriteHeader(const std::string& tec_title, int tec_filetype, int dim);
-	void setVariables();
+	void WriteHeader(const std::string& tec_title, int tec_filetype, int dim, const std::vector<string>& variableNames);
+	void setVariables(const std::vector<string>& variableNames);
 
 	// MF-PUB-05 - WriteTecplotZone
 	// @brief 	Prepare data for Tecplot Zone
@@ -102,13 +103,15 @@ public:
 	// @return Void
 	void WriteZone(const GRID::Configuration &config);
 	void setTimeplot(int strandID, double solTime);
-	void setUsingBlockDataPack();
-	void setUsingNodalData();
+	void setUsingBlockDataPack(bool flag);
+	void setUsingNodalData(bool flag);
 
 	// MF-PUB-06 - PrepareFile
 	// @brief 	Prepare a file
 	// @return Void
 	void PrepareFile();
+	void PrepareFile(const string& filename);
+
 };
 
 } /* namespace IO */
