@@ -46,13 +46,10 @@ int main(int argc, char *argv[])
 
 
 	// Grid Generation/Read
-	int Nx	= 30;
-	int Ny  = 20;
+	int Nx	= 100;
+	int Ny  = 50;
 	GRID::c_Grid grid(Nx, Ny);
-
-	int aa;
-
-	//GRID::GridGen2D_v1(-2.0, 100, 4.0, 0.0, 50, 3.0, 1.0, false, grid);
+	GRID::GridGen2D_v1(-2.0, Nx, 4.0, 0.0, Ny, 3.0, 1.0, false, grid);
 
 
 	/*
@@ -61,21 +58,19 @@ int main(int argc, char *argv[])
 		GridSetRefiningFlagGeometry(grid);
 		GridSetRefiniement(grid);
 	}
+	*/
 
 
-
-	for (int i_n = 0; i_n <= grid.NNM; i_n++)
+	for (int i_n = 0; i_n <= grid.NNM-1; i_n++)
 	{
-		grid.Node_Data[i_n].data.resize(1);
-		grid.Node_Data[i_n].data[0] = 0;
+		grid.NODE_data(i_n).data.resize(1);
+		grid.NODE_data(i_n).data[0] = 0;
 	}
 
 	grid.Node_Data_Map.insert("test", 0);
 
 	vector<unsigned int> variableFlag(1);
 	variableFlag[0] = grid.Node_Data_Map.find("test");
-
-
 
 	// Print Result
 	IO::TecplotV2 outputTecplot;
@@ -84,7 +79,6 @@ int main(int argc, char *argv[])
 	outputTecplot.outputFilename = simulation_title.c_str();
 	outputTecplot.WriteFile(simulation_title, grid, variableFlag);
 
-*/
 
 
 

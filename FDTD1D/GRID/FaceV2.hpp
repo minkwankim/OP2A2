@@ -55,10 +55,15 @@ protected:
 	bool m_include;
 
 public:
+	void applyBoundary();
+
+
 	void CheckError();
 	void resizeData(unsigned int size_data);
 	void remove();
 	bool isInclude();
+
+
 
 
 

@@ -11,7 +11,11 @@
 
 
 #include <COMMON/FileHandle.hpp>
+#include <COMMON/ErrorCode.hpp>
+#include <COMMON/ExceptionGeneral.hpp>
+
 #include <IO/TecplotV2.hpp>
+
 
 namespace OP2A {
 namespace IO {
@@ -98,18 +102,16 @@ void TecplotV2::WriteNodeData(GRID::c_Grid &grid, const vector<unsigned int>& fl
 	tecplot_file.open(temp_filename_nodeData.c_str());
 
 	int num_n = 0;
-	for (int i_n = 1; i_n <= grid.NNM; i_n++)
+	for (int i_n = 0; i_n <= grid.NNM-1; i_n++)
 	{
-		//unsigned int i = grid.whereisNode[i_n];
-
 		for (int i_k = 0; i_k <= grid.DIM-1; i_k++)
 		{
-			//tecplot_file << grid.Node_Data[i].x[i_k] << " ";
+			tecplot_file << grid.NODE_data(i_n).x[i_k] << " ";
 		}
 
 		for (int i_v = 0; i_v <= flagPrintVariable.size()-1; i_v++)
 		{
-			//tecplot_file << grid.Node_Data[i].data[flagPrintVariable[i_v]] << "  ";
+			tecplot_file << grid.NODE_data(i_n).data[flagPrintVariable[i_v]] << "  ";
 		}
 		tecplot_file << endl;
 
@@ -127,21 +129,19 @@ void TecplotV2::WriteConnectivity(GRID::c_Grid &grid)
 
 
 	int num_c = 0;
-	for (int i_c = 0; i_c <= grid.NCM-1; i_c++)
+	for (int i_c = 0; i_c <= grid.Cell_List.size()-1; i_c++)
 	{
-		/*
-		if (grid.Cell_Data[i_c].isInclude() == true)
+		for (int i_n = 0; i_n <= grid.Cell_List[i_c]->N_List.size()-1; i_n++)
 		{
-			for (int i_n = 0; i_n <= grid.Cell_Data[i_c].N_List.size()-1; i_n++)
-			{
-				tecplot_file << grid.Cell_Data[i_c].N_List[i_n]->ID <<" ";
-			}
-			tecplot_file << endl;
-
-			num_c++;
+			int unsigned pos	= grid.NODE_pos(grid.Cell_List[i_c]->N_List[i_n]->ID);
+			if (pos >= 0)	tecplot_file << pos+1 <<" ";
+			else			Common::ExceptionGeneral(FromHere(), "[Tecplot]: Problem in Node List", Common::ErrorCode::NotAllocated());
 		}
-		*/
+
+		tecplot_file << endl;
+		num_c++;
 	}
+
 
 	zone.ELEMENTS = num_c;
 	tecplot_file.close();

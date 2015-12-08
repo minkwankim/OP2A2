@@ -55,6 +55,8 @@ protected:
 	bool m_needToRefine;
 
 public:
+	void applyBoundary();
+
 	void CheckError();
 	void resizeData(unsigned int size_data);
 	void remove();

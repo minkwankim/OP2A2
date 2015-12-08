@@ -26,9 +26,9 @@ public:
 	~Cell_IJK_Info();
 
 public:
-	unsigned int i;
-	unsigned int j;
-	unsigned int k;
+	double i;
+	double j;
+	double k;
 
 	unsigned int lvl_refine;
 	unsigned int location;

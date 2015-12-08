@@ -43,7 +43,7 @@ Node_V2::~Node_V2()
 
 void Node_V2::CheckError()
 {
-	if (C_List.size() > 1)
+	if (C_List.size() >= 1)
 	{
 		for (int i_c = 0; i_c <= C_List.size()-1; i_c++)
 		{

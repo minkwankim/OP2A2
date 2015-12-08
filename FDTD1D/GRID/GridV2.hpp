@@ -276,31 +276,26 @@ public:
 	unsigned int NNM;
 	unsigned int NFM;
 	unsigned int NCM;
+	unsigned int NGM;
+
 
 
 	// List Data
-	vector<c_Node*>	Node_List;
-	vector<c_Face*>	Face_List;
-	vector<c_Cell*>	Cell_List;
-	vector< vector<c_Face*>	> Face_List_Parent;
-	vector< vector<c_Cell*>	> Cell_List_Parent;
-	vector<c_Face*>	Face_List_Boundary;
-	vector<c_Cell*>	Cell_List_Ghost;
+	// 1. List of grid data which has no children
+	vector<c_Node*>				Node_List;
+	vector<c_Face*>				Face_List;
+	vector<c_Cell*>				Cell_List;
 
+	// 2. List of grid data(Parent)
+	vector<c_Face*> 			Face_List_Parent[CONST_MAX_REFINEMENT_LEVEL+1];
+	vector<c_Cell*>	 			Cell_List_Parent[CONST_MAX_REFINEMENT_LEVEL+1];
 
-	vector<unsigned int>	whereisGhost;	// [Ghost ID]	==> gives actual location in cell data array
-
-
-	//Common::Map3D<double, double, double, unsigned int>		Node_Index_Map;
-	//Common::Map3D<double, double, double, unsigned int>		Face_Index_Map;
-	std::vector< std::vector< std::vector <Cell_IJK> > >	Cell_Index_Map;
-
+	// 3. List of Boundaries
+	vector<c_Face*>				Face_List_Boundary;
+	vector<c_Cell*>				Cell_List_Ghost;
 
 
 protected:
-	// Actual Data Section
-	vector<c_Cell>	m_Ghost_Data;
-
 	// Node
 	IJK						m_IJK_node;
 	vector<int>				m_whereisNode;		// [Node ID] 	==> gives actual location in node data array
@@ -315,7 +310,7 @@ protected:
 	IJK_cell				m_IJK_cell;
 	vector<int>				m_whereisCell;		// [Cell ID] 	==> gives actual location in node data array
 	vector<c_Cell>			m_Cell_Data;
-
+	vector<c_Cell>			m_Ghost_Data;
 
 
 protected:
@@ -326,20 +321,96 @@ protected:
 
 
 public:
-	void Set_Refine_Level(unsigned int lvl);
 	void Update_Number_Info();
 
+	// 1. Calling functions
 	c_Node* NODE(double i, double j, double k);
 	c_Node* NODE(double i, double j);
 	c_Node* NODE(double i);
+	c_Node& NODE_data(unsigned int i);
+
 
 	c_Face* FACE(double i, double j, double k);
 	c_Face* FACE(double i, double j);
 	c_Face* FACE(double i);
+	c_Face& FACE_data(unsigned int i);
 
 	c_Cell* CELL(double i, double j, double k);
 	c_Cell* CELL(double i, double j);
 	c_Cell* CELL(double i);
+	c_Cell& CELL_data(unsigned int i);
+
+
+	// 2. Resize Functions
+	void NODE_resize(unsigned int n_size);
+	void FACE_resize(unsigned int f_size);
+	void CELL_resize(unsigned int c_size);
+	void GHOST_resize(unsigned int c_size);
+
+	// 3. Add functions
+	void NODE_add(double i, double j, double k, const c_Node& node);
+	void NODE_add(double i, double j, const c_Node& node);
+	void NODE_add(double i, const c_Node& node);
+	void NODE_add(double i, double j, double k);
+	void NODE_add(double i, double j);
+	void NODE_add(double i);
+
+	void FACE_add(double i, double j, double k, const c_Face& face);
+	void FACE_add(double i, double j, const c_Face& face);
+	void FACE_add(double i, const c_Face& face);
+	void FACE_add(double i, double j, double k);
+	void FACE_add(double i, double j);
+	void FACE_add(double i);
+
+	void CELL_add(double i, double j, double k, const c_Cell& cell);
+	void CELL_add(double i, double j, const c_Cell& cell);
+	void CELL_add(double i, const c_Cell& cell);
+	void CELL_add(double i, double j, double k);
+	void CELL_add(double i, double j);
+	void CELL_add(double i);
+
+	// 4. Remove Functions
+	void NODE_remove(c_Node* node);
+	void NODE_remove(double i, double j, double k);
+	void NODE_remove(double i, double j);
+	void NODE_remove(double i);
+
+	void FACE_remove(c_Face* face);
+	void FACE_remove(double i, double j, double k);
+	void FACE_remove(double i, double j);
+	void FACE_remove(double i);
+
+	void CELL_remove(c_Cell* cell);
+	void CELL_remove(double i, double j, double k);
+	void CELL_remove(double i, double j);
+	void CELL_remove(double i);
+
+
+	// 5. Set position Functions
+	void NODE_setPos(double i, double j, double k, unsigned int pos);
+	void FACE_setPos(double i, double j, double k, unsigned int pos);
+	void CELL_setPos(double i, double j, double k, unsigned int pos);
+
+
+	// 6. Update Node/Face/Cell List
+	void NODE_ListUpdate();
+	void FACE_ListUpdate();
+	void CELL_ListUpdate();
+
+
+	// 7. Get Position of IDs
+	int NODE_pos(unsigned int ID);
+	int FACE_pos(unsigned int ID);
+	int CELL_pos(unsigned int ID);
+
+
+	// 8. Add Ghost Cell
+	void GHOST_add();
+	void GHOST_add(const c_Cell& ghost);
+	c_Cell& GHOST_data(unsigned int i);
+
+
+
 
 };
 

@@ -44,9 +44,84 @@ Cell_V2::~Cell_V2()
 
 
 
+/*
+ * 1.1 Apply boundary and deciding type of face
+ */
+void Cell_V2::applyBoundary()
+{
+	type	= 1;
+	BC		= 1;
+
+	bool flag_type = true;
+	for (int n = 1; n <= N_List.size()-1; n++)
+	{
+		if (N_List[n]->BC == 1)
+		{
+			if (flag_type != true)
+			{
+				flag_type = false;
+				break;
+			}
+		}
+		else
+		{
+			flag_type = false;
+		}
+
+		if (flag_type != true)	break;
+	}
+
+	if (flag_type == true)
+	{
+		type	= 0;
+		BC		= 0;
+	}
+
+
+	flag_type = true;
+	for (int n = 1; n <= N_List.size()-1; n++)
+	{
+		if (N_List[n]->BC == -1)
+		{
+			if (flag_type != true)
+			{
+				flag_type = false;
+				break;
+			}
+		}
+		else
+		{
+			flag_type = false;
+		}
+
+		if (flag_type != true)	break;
+	}
+
+	if (flag_type == true)
+	{
+		type	= -1;
+		BC		= 1;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Cell_V2::CheckError()
 {
-	if (ID == 0)	Common::ExceptionGeneral(FromHere(),"This cell is not allocated yet.",Common::ErrorCode::NotAllocated());
+	if (ID == 0)
+	{
+		Common::ExceptionGeneral(FromHere(),"This cell is not allocated yet.",Common::ErrorCode::NotAllocated());
+	}
 
 
 	for (int i_n = 0; i_n <= N_List.size()-1; i_n++)

@@ -28,8 +28,14 @@ void GridGen2D_v1(const double X0, const unsigned int Nx, const double Xl,
 
 
 void GridProcessing_v2(const double gridFactor, bool isAxisymmetric, c_Grid& grid);
-void GridProcessing_Face_v2(c_Grid& grid, int i_f);
-void GridProcessing_Cell_v2(c_Grid& grid, int i_c);
+void GridProcessing_Node_v2(c_Node& node, unsigned int DIM);
+void GridProcessing_Face_v2(c_Face& face, unsigned int DIM);
+void GridProcessing_Cell_v2(c_Cell& cell, unsigned int DIM);
+
+
+void CreateGhostCell(c_Grid& grid, c_Face& face, unsigned int direction);
+
+
 
 void GridSetRefiningFlagGeometry(c_Grid& grid);
 void GridSetRefiniement(c_Grid& grid);
