@@ -23,8 +23,10 @@ int GridShapeFunctions(const double x, const double y);
 
 void GridGen2D_v1(const double X0, const unsigned int Nx, const double Xl,
 				const double Y0, const unsigned int Ny, const double Yl,
-				const double gridFactor, bool axysymmetric,
+				const double gridFactor, bool axysymmetric, vector<unsigned int>& BCs,
 				c_Grid& grid2D);
+
+void GridRefineGeometry(c_Grid& grid, unsigned int i_maxLvl);
 
 
 void GridProcessing_v2(const double gridFactor, bool isAxisymmetric, c_Grid& grid);
@@ -38,8 +40,9 @@ void CreateGhostCell(c_Grid& grid, c_Face& face, unsigned int direction);
 
 
 void GridSetRefiningFlagGeometry(c_Grid& grid);
+void GridSetRefiningFlagNeighbors(c_Grid& grid);
 void GridSetRefiniement(c_Grid& grid);
-void GridRefiner2D_v1(c_Grid& grid, int c);
+void GridRefiner2D_v1(c_Grid& grid, c_Cell* cell);
 
 
 

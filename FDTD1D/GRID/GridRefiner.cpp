@@ -23,1034 +23,762 @@ namespace OP2A {
 namespace GRID {
 
 
-/*
-
 void GridSetRefiningFlagGeometry(c_Grid& grid)
 {
-	for (int c = 0; c <= grid.NCM-1; c++)
+	for (int c = 0; c <= grid.Cell_List.size()-1; c++)
 	{
-		grid.Cell_Data[c].setRefine(false);
+		grid.Cell_List[c]->setRefine(false);
 
-		if (grid.Cell_Data[c].has_Child == false)
+		if (grid.Cell_List[c]->has_Child == false)
 		{
-			if (grid.Cell_Data[c].type == 1 && grid.Cell_Data[c].isInclude() == true)
+			if (grid.Cell_List[c]->type == 1 && grid.Cell_List[c]->index.lvl_refine < CONST_MAX_REFINEMENT_LEVEL-1)
 			{
-				grid.Cell_Data[c].setRefine(true);
+				grid.Cell_List[c]->setRefine(true);
 			}
 		}
 	}
 
-	for (int f = 0; f <= grid.NFM-1; f++)
+	GridSetRefiningFlagNeighbors(grid);
+}
+
+
+void GridSetRefiningFlagNeighbors(c_Grid& grid)
+{
+	for (int ia = 0; ia <= CONST_MAX_REFINEMENT_LEVEL-1; ia++)
 	{
 
-		if (grid.Face_Data[f].CL != NULL && grid.Face_Data[f].CR != NULL)
+		for (int f = 0; f <= grid.NFM-1; f++)
 		{
-			if (grid.Face_Data[f].CL->index.lvl_refine > grid.Face_Data[f].CR->index.lvl_refine &&	grid.Face_Data[f].CL->needToRefine() == true)
+			if (grid.FACE_data(f).has_Child == false)
 			{
-				grid.Face_Data[f].CR->setRefine(true);
-			}
+				c_Cell* CL	= grid.FACE_data(f).CL;
+				c_Cell* CR	= grid.FACE_data(f).CR;
 
-			if (grid.Face_Data[f].CR->index.lvl_refine > grid.Face_Data[f].CL->index.lvl_refine &&	grid.Face_Data[f].CR->needToRefine() == true)
-			{
-				grid.Face_Data[f].CL->setRefine(true);
+				if (CL != NULL && CL->isInclude() == true &&
+					CR != NULL && CR->isInclude() == true)
+				{
+					if (CR->index.lvl_refine != CL->index.lvl_refine)
+					{
+						if (CL->needToRefine() == true && CR->needToRefine() != true)
+						{
+							if(CL->index.lvl_refine > CR->index.lvl_refine	&& CR->has_Child == false)
+							{
+								CR->setRefine(true);
+							}
+						}
+
+						if (CL->needToRefine() != true && CR->needToRefine() == true)
+						{
+							if(CR->index.lvl_refine > CL->index.lvl_refine	&& CL->has_Child == false)
+							{
+								CL->setRefine(true);
+							}
+						}
+					}
+				}
 			}
 		}
 	}
 }
+
 
 
 void GridSetRefiniement(c_Grid& grid)
 {
-
 	if (grid.DIM == 2)
 	{
-		for (int c = 0; c <= grid.NCM-1; c++)
+		for (int c = 0; c <= grid.Cell_List.size()-1; c++)
 		{
-			if (grid.Cell_Data[c].needToRefine() == true)
+			if (grid.Cell_List[c]->needToRefine() == true)
 			{
-				GridRefiner2D_v1(grid, c);
+				GridRefiner2D_v1(grid, grid.Cell_List[c]);
 			}
 		}
 	}
-
-
-	for (int c = 0; c <= grid.NCM-1; c++)
+	else
 	{
-		if (grid.Cell_Data[c].has_Child == true)
-		{
-			grid.Cell_Data[c].remove();
-		}
+		//@TODO Need to add 3D case
 	}
 
 
+	grid.NODE_ListUpdate();
+	grid.FACE_ListUpdate();
+	grid.CELL_ListUpdate();
 
+
+	// CREATE GHOST CELLS
+	for (unsigned int i_f = 0; i_f <= grid.NFM-1; i_f++)
+	{
+		if (grid.FACE_data(i_f).BC != 0)
+		{
+			if (grid.FACE_data(i_f).CL == NULL)	CreateGhostCell(grid, grid.FACE_data(i_f), 0);
+			if (grid.FACE_data(i_f).CR == NULL)	CreateGhostCell(grid, grid.FACE_data(i_f), 1);
+		}
+	}
 }
 
 
 
-void GridRefiner2D_v1(c_Grid& grid, int c)
+void GridRefiner2D_v1(c_Grid& grid, c_Cell* cell)
 {
-
 	// Getting Basic information of nodes and faces
-	c_Node*	node1	= grid.Cell_Data[c].N_List[0];
-	c_Node*	node2	= grid.Cell_Data[c].N_List[1];
-	c_Node*	node3	= grid.Cell_Data[c].N_List[2];
-	c_Node*	node4	= grid.Cell_Data[c].N_List[3];
+	c_Node*	node1	= cell->N_List[0];
+	c_Node*	node2	= cell->N_List[1];
+	c_Node*	node3	= cell->N_List[2];
+	c_Node*	node4	= cell->N_List[3];
 
-	c_Face*	face1	= grid.Cell_Data[c].F_List[0];
-	c_Face*	face2	= grid.Cell_Data[c].F_List[1];
-	c_Face*	face3	= grid.Cell_Data[c].F_List[2];
-	c_Face*	face4	= grid.Cell_Data[c].F_List[3];
-
-	c_Cell*	cell	= &grid.Cell_Data[c];
-
+	c_Face*	face1	= cell->F_List[0];
+	c_Face*	face2	= cell->F_List[1];
+	c_Face*	face3	= cell->F_List[2];
+	c_Face*	face4	= cell->F_List[3];
 
 
 	// Refinement information
-	int lvl_refine	= grid.Cell_Data[c].index.lvl_refine;
+	int lvl_refine	= cell->index.lvl_refine;
+	double di, dj;
 	lvl_refine++;
 
 
 	// Create 4new cells
-	int last_location_cell	= grid.Cell_Data.size()-1;
-	grid.Cell_Data.resize(grid.NCM + 4);
-	grid.whereisCell.resize(grid.NCM + 5);
+	double ic, jc, kc;
+	ic	= cell->index.i;
+	jc	= cell->index.j;
+	kc	= cell->index.k;
 
-	c_Cell* cell_new1	= &grid.Cell_Data[last_location_cell+1];
-	c_Cell* cell_new2	= &grid.Cell_Data[last_location_cell+2];
-	c_Cell* cell_new3	= &grid.Cell_Data[last_location_cell+3];
-	c_Cell* cell_new4	= &grid.Cell_Data[last_location_cell+4];
+	di	= 1.0 / pow(2.0, lvl_refine + 1.0);
+
+	grid.CELL_add(ic-di, jc-di);
+	grid.CELL_add(ic+di, jc-di);
+	grid.CELL_add(ic+di, jc+di);
+	grid.CELL_add(ic-di, jc+di);
+
+	c_Cell* cell_new1	= grid.CELL(ic-di, jc-di);
+	c_Cell* cell_new2	= grid.CELL(ic+di, jc-di);;
+	c_Cell* cell_new3	= grid.CELL(ic+di, jc+di);;
+	c_Cell* cell_new4	= grid.CELL(ic-di, jc+di);;
+
+	cell_new1->index.i	= ic-di;
+	cell_new1->index.j	= jc-di;
+	cell_new1->index.k	= kc;
+
+	cell_new2->index.i	= ic+di;
+	cell_new2->index.j	= jc-di;
+	cell_new2->index.k	= kc;
+
+	cell_new3->index.i	= ic+di;
+	cell_new3->index.j	= jc+di;
+	cell_new3->index.k	= kc;
+
+	cell_new4->index.i	= ic-di;
+	cell_new4->index.j	= jc+di;
+	cell_new4->index.k	= kc;
+
 
 
 
 	// 1. Create nodes (1~ 5)
+	c_Node	node;
+	di	= 1.0 / pow(2.0, lvl_refine);
+	dj	= di;
 	double i  = node1->index.i;
 	double j  = node1->index.j;
 	double k  = node1->index.k;
 
-	double di = (node2->index.i - node1->index.i) / 2.0;
-	double dj = (node4->index.j - node1->index.j) / 2.0;
-	double ic, jc, kc;
-
 	// Error check
-	if (di != 1.0/pow(2.0, lvl_refine))
+	if  (di != (node2->index.i - node1->index.i) / 2.0)
 	{
 		Common::ExceptionGeneral(FromHere(), "CellRefinement:: Problem in refinement level in x-direction.", Common::ErrorCode::NotMatchDimention());
 	}
 
-	if (dj != 1.0/pow(2.0, lvl_refine))
+	if  (dj != (node4->index.j - node1->index.j) / 2.0)
 	{
 		Common::ExceptionGeneral(FromHere(), "CellRefinement:: Problem in refinement level in y-direction.", Common::ErrorCode::NotMatchDimention());
 	}
 
 
-	int last_location_node;
-	int nnm	= grid.NNM;
-
-	c_Node*	node_new1;
-	c_Node*	node_new2;
-	c_Node*	node_new3;
-	c_Node*	node_new4;
-	c_Node*	node_new5;
-
 	// Node1
-	nnm++;
-	grid.Node_Data.resize(nnm);
-	grid.whereisNode.resize(nnm + 1);
-	last_location_node	= grid.Node_Data.size() - 1;
-	node_new1	= &grid.Node_Data[last_location_node];
-
-	node_new1->ID	= nnm;
-	node_new1->x[0]	= grid.Cell_Data[c].x[0];
-	node_new1->x[1]	= grid.Cell_Data[c].x[1];
-	node_new1->x[2]	= grid.Cell_Data[c].x[2];
-	node_new1->index.i = i + di;
-	node_new1->index.j = j + dj;
-	node_new1->index.k = 0.0;
-	node_new1->BC = GridShapeFunctions(node_new1->x[0], node_new1->x[1], node_new1->x[2]);
-	node_new1->C_List.resize(4);
-	node_new1->C_List[0]	= cell_new1;
-	node_new1->C_List[1]	= cell_new2;
-	node_new1->C_List[2]	= cell_new3;
-	node_new1->C_List[3]	= cell_new4;
-	grid.whereisNode[node_new1->ID]	= last_location_node;
-	//grid.Node_Index_Map.insert(node_new1->index.i, node_new1->index.j, node_new1->index.k, last_location_node);
+	node.x[0]	= cell->x[0];
+	node.x[1]	= cell->x[1];
+	node.x[2]	= cell->x[2];
+	node.index.i = i + di;
+	node.index.j = j + dj;
+	node.index.k = 0.0;
+	node.BC = GridShapeFunctions(node.x[0], node.x[1], node.x[2]);
+	node.C_List.resize(4);
+	node.C_List[0]	= cell_new1;
+	node.C_List[1]	= cell_new2;
+	node.C_List[2]	= cell_new3;
+	node.C_List[3]	= cell_new4;
+	grid.NODE_add(node.index.i, node.index.j, node.index.k, node);
 
 
 	// Node2
-	ic	= i + di;
-	jc	= j;
-	kc  = k;
-
-	if (grid.NODE(ic, jc, kc) == NULL)
+	if (grid.NODE(i+di, j, k) == NULL)
 	{
-		nnm++;
-		grid.Node_Data.resize(nnm);
-		grid.whereisNode.resize(nnm + 1);
-		last_location_node	= grid.Node_Data.size() - 1;
-		node_new2	= &grid.Node_Data[last_location_node];
+		node.x[0]	= face1->x[0];
+		node.x[1]	= face1->x[1];
+		node.x[2]	= face1->x[2];
+		node.index.i = i+di;
+		node.index.j = j;
+		node.index.k = k;
+		node.BC = GridShapeFunctions(node.x[0], node.x[1], node.x[2]);
 
-		node_new2->ID	= nnm;
-		node_new2->x[0]	= face1->x[0];
-		node_new2->x[1]	= face1->x[1];
-		node_new2->x[2]	= face1->x[2];
-		node_new2->index.i = ic;
-		node_new2->index.j = jc;
-		node_new2->index.k = kc;
-		node_new2->BC = GridShapeFunctions(node_new2->x[0], node_new2->x[1], node_new2->x[2]);
-
-		if (face1->CL!= NULL && face1->CL->has_Child == true)
-		{
-			node_new2->C_List.resize(4);
-			node_new2->C_List[0]	= face1->CL->Children[2];
-			node_new2->C_List[1]	= face1->CL->Children[3];
-			node_new2->C_List[2]	= cell_new1;
-			node_new2->C_List[3]	= cell_new2;
-		}
-		else
-		{
-			node_new2->C_List.resize(4);
-			node_new2->C_List[0]	= face1->CL;
-			node_new2->C_List[1]	= cell_new1;
-			node_new2->C_List[2]	= cell_new2;
-		}
-
-		grid.whereisNode[node_new2->ID]	= last_location_node;
-		//grid.Node_Index_Map.insert(ic, jc, kc, last_location_node);
+		node.C_List.resize(3);
+		node.C_List[0]	= face1->CL;
+		node.C_List[1]	= cell_new1;
+		node.C_List[2]	= cell_new2;
+		grid.NODE_add(node.index.i, node.index.j, node.index.k, node);
 	}
 	else
 	{
-		node_new2 = grid.NODE(ic, jc, kc);
+		int n_size	= grid.NODE(i+di, j, k)->C_List.size();
+		for (int n = 0; n <= n_size-1; n++)
+		{
+			if (grid.NODE(i+di, j, k)->C_List[n] == cell)
+			{
+				grid.NODE(i+di, j, k)->C_List.resize(n_size+1);
+				grid.NODE(i+di, j, k)->C_List[n]		= cell_new1;
+				grid.NODE(i+di, j, k)->C_List[n_size]	= cell_new2;
+				break;
+			}
+		}
 	}
 
 
 	// Node3
-	ic	= i + 2.0*di;
-	jc	= j + dj;
-	kc  = k;
-
-	if (grid.NODE(ic, jc, kc) == NULL)
+	if (grid.NODE(i+2.0*di, j+dj, k) == NULL)
 	{
-		nnm++;
-		grid.Node_Data.resize(nnm);
-		grid.whereisNode.resize(nnm + 1);
-		last_location_node	= grid.Node_Data.size() - 1;
-		node_new3	= &grid.Node_Data[last_location_node];
+		node.x[0]	= face2->x[0];
+		node.x[1]	= face2->x[1];
+		node.x[2]	= face2->x[2];
+		node.index.i = i+2.0*di;
+		node.index.j = j+dj;
+		node.index.k = k;
+		node.BC = GridShapeFunctions(node.x[0], node.x[1], node.x[2]);
 
-		node_new3->ID	= nnm;
-		node_new3->x[0]	= face2->x[0];
-		node_new3->x[1]	= face2->x[1];
-		node_new3->x[2]	= face2->x[2];
-		node_new3->index.i = ic;
-		node_new3->index.j = jc;
-		node_new3->index.k = kc;
-		node_new3->BC = GridShapeFunctions(node_new3->x[0], node_new3->x[1], node_new3->x[2]);
+		node.C_List.resize(3);
+		node.C_List[0]	= face2->CR;
+		node.C_List[1]	= cell_new2;
+		node.C_List[2]	= cell_new3;
+		grid.NODE_add(node.index.i, node.index.j, node.index.k, node);
 
-		if (face2->CR!= NULL && face2->CR->has_Child == true)
-		{
-			node_new3->C_List.resize(4);
-			node_new3->C_List[0]	= face2->CR->Children[0];
-			node_new3->C_List[1]	= face2->CR->Children[3];
-			node_new3->C_List[2]	= cell_new2;
-			node_new3->C_List[3]	= cell_new3;
-		}
-		else
-		{
-			node_new3->C_List.resize(3);
-			node_new3->C_List[0]	= face2->CR;
-			node_new3->C_List[1]	= cell_new2;
-			node_new3->C_List[2]	= cell_new3;
-		}
-
-		grid.whereisNode[node_new3->ID]	= last_location_node;
-		//grid.Node_Index_Map.insert(ic, jc, kc, last_location_node);
 	}
 	else
 	{
-		node_new3 = grid.NODE(ic, jc, kc);
+		int n_size	=grid.NODE(i+2.0*di, j+dj, k)->C_List.size();
+		for (int n = 0; n <= n_size-1; n++)
+		{
+			if (grid.NODE(i+2.0*di, j+dj, k)->C_List[n] == cell)
+			{
+				grid.NODE(i+2.0*di, j+dj, k)->C_List.resize(n_size+1);
+				grid.NODE(i+2.0*di, j+dj, k)->C_List[n]		= cell_new2;
+				grid.NODE(i+2.0*di, j+dj, k)->C_List[n_size]	= cell_new3;
+				break;
+			}
+		}
 	}
 
 
 	// Node4
-	ic	= i + di;
-	jc	= j + 2.0*dj;
-	kc  = k;
-
-	if (grid.NODE(ic, jc, kc) == NULL)
+	if (grid.NODE(i+di, j+2.0*dj, k) == NULL)
 	{
-		nnm++;
-		grid.Node_Data.resize(nnm);
-		grid.whereisNode.resize(nnm + 1);
-		last_location_node	= grid.Node_Data.size() - 1;
-		node_new4	= &grid.Node_Data[last_location_node];
+		node.x[0]	= face3->x[0];
+		node.x[1]	= face3->x[1];
+		node.x[2]	= face3->x[2];
+		node.index.i = i+di;
+		node.index.j = j+2.0*dj;
+		node.index.k = k;
+		node.BC = GridShapeFunctions(node.x[0], node.x[1], node.x[2]);
 
-		node_new4->ID	= nnm;
-		node_new4->x[0]	= face3->x[0];
-		node_new4->x[1]	= face3->x[1];
-		node_new4->x[2]	= face3->x[2];
-		node_new4->index.i = ic;
-		node_new4->index.j = jc;
-		node_new4->index.k = kc;
-		node_new4->BC = GridShapeFunctions(node_new4->x[0], node_new4->x[1], node_new4->x[2]);
-
-		if (face3->CR != NULL && face3->CR->has_Child == true)
-		{
-			node_new4->C_List.resize(4);
-			node_new4->C_List[0]	= face3->CR->Children[0];
-			node_new4->C_List[1]	= face3->CR->Children[1];
-			node_new4->C_List[2]	= cell_new3;
-			node_new4->C_List[3]	= cell_new4;
-		}
-		else
-		{
-			node_new4->C_List.resize(3);
-			node_new4->C_List[0]	= face3->CR;
-			node_new4->C_List[1]	= cell_new3;
-			node_new4->C_List[2]	= cell_new4;
-		}
-
-		grid.whereisNode[node_new4->ID]	= last_location_node;
-	//	grid.Node_Index_Map.insert(ic, jc, kc, last_location_node);
+		node.C_List.resize(3);
+		node.C_List[0]	= face3->CL;
+		node.C_List[1]	= cell_new3;
+		node.C_List[2]	= cell_new3;
+		grid.NODE_add(node.index.i, node.index.j, node.index.k, node);
 	}
 	else
 	{
-		node_new4 = grid.NODE(ic, jc, kc);
+		int n_size	= grid.NODE(i+di, j+2.0*dj, k)->C_List.size();
+		for (int n = 0; n <= n_size-1; n++)
+		{
+			if (grid.NODE(i+di, j+2.0*dj, k)->C_List[n] == cell)
+			{
+				grid.NODE(i+di, j+2.0*dj, k)->C_List.resize(n_size+1);
+				grid.NODE(i+di, j+2.0*dj, k)->C_List[n]		= cell_new3;
+				grid.NODE(i+di, j+2.0*dj, k)->C_List[n_size]	= cell_new4;
+				break;
+			}
+		}
 	}
+
 
 
 	// Node5
-	ic	= i;
-	jc	= j + dj;
-	kc  = k;
-
-	if (grid.NODE(ic, jc, kc) == NULL)
+	if (grid.NODE(i, j+dj, k) == NULL)
 	{
-		nnm++;
-		grid.Node_Data.resize(nnm);
-		grid.whereisNode.resize(nnm + 1);
-		last_location_node	= grid.Node_Data.size() - 1;
-		node_new5	= &grid.Node_Data[last_location_node];
+		node.x[0]	= face4->x[0];
+		node.x[1]	= face4->x[1];
+		node.x[2]	= face4->x[2];
+		node.index.i = i;
+		node.index.j = j+dj;
+		node.index.k = k;
+		node.BC = GridShapeFunctions(node.x[0], node.x[1], node.x[2]);
 
-		node_new5->ID	= nnm;
-		node_new5->x[0]	= face4->x[0];
-		node_new5->x[1]	= face4->x[1];
-		node_new5->x[2]	= face4->x[2];
-		node_new5->index.i = ic;
-		node_new5->index.j = jc;
-		node_new5->index.k = kc;
-		node_new5->BC = GridShapeFunctions(node_new5->x[0], node_new5->x[1], node_new5->x[2]);
+		node.C_List.resize(3);
+		node.C_List[0]	= face4->CR;
+		node.C_List[1]	= cell_new4;
+		node.C_List[2]	= cell_new1;
+		grid.NODE_add(node.index.i, node.index.j, node.index.k, node);
 
-		if (face4->CL != NULL && face4->CL->has_Child == true)
-		{
-			node_new5->C_List.resize(4);
-			node_new5->C_List[0]	= face4->CL->Children[1];
-			node_new5->C_List[1]	= face4->CL->Children[2];
-			node_new5->C_List[2]	= cell_new4;
-			node_new5->C_List[3]	= cell_new1;
-		}
-		else
-		{
-			node_new5->C_List.resize(3);
-			node_new5->C_List[0]	= face4->CL;
-			node_new5->C_List[1]	= cell_new4;
-			node_new5->C_List[2]	= cell_new1;
-		}
-
-		grid.whereisNode[node_new5->ID]	= last_location_node;
-	//	grid.Node_Index_Map.insert(ic, jc, kc, last_location_node);
 	}
 	else
 	{
-		node_new5 = grid.NODE(ic, jc, kc);
+		int n_size	= grid.NODE(i, j+dj, k)->C_List.size();
+		for (int n = 0; n <= n_size-1; n++)
+		{
+			if (grid.NODE(i, j+dj, k)->C_List[n] == cell)
+			{
+				grid.NODE(i, j+dj, k)->C_List.resize(n_size+1);
+				grid.NODE(i, j+dj, k)->C_List[n]		= cell_new4;
+				grid.NODE(i, j+dj, k)->C_List[n_size]	= cell_new1;
+				break;
+			}
+		}
 	}
 
-
-	// Update in Grid
-	for (int i_n = grid.NNM-1; i_n <= nnm-1; i_n++)
-	{
-		if(grid.Node_Data[i_n].BC >= 0)	grid.Node_List.push_back(&grid.Node_Data[i_n]);
-		else							grid.Node_Data[i_n].remove();
-	}
-
-	grid.NNM = nnm;
-
-
-
-
-
+	c_Node* node5	= grid.NODE(i + 	di,	j +		dj, k);
+	c_Node* node6	= grid.NODE(i + 	di, j 	  	  , k);
+	c_Node* node7	= grid.NODE(i + 2.0*di, j + 	dj, k);
+	c_Node* node8	= grid.NODE(i + 	di, j + 2.0*dj, k);
+	c_Node* node9	= grid.NODE(i 		  , j + 	dj, k);
 
 
 	// 2. FACE
-	c_Face*	face_new1;
-	c_Face*	face_new2;
-	c_Face*	face_new3;
-	c_Face*	face_new4;
-	c_Face*	face_new5;
-	c_Face*	face_new6;
-	c_Face*	face_new7;
-	c_Face*	face_new8;
-	c_Face*	face_new9;
-	c_Face*	face_new10;
-	c_Face*	face_new11;
-	c_Face*	face_new12;
+	c_Face	face;
+	di	= 1.0 / pow(2.0, lvl_refine + 1);
+	dj	= di;
+	double two_di, three_di;
+	double two_dj, three_dj;
 
-	int last_location_face;
-	int nfm	= grid.NFM;
+	two_di		= 2.0 * di;
+	three_di	= 3.0 * di;
 
-	// face1
-	ic	= i + di;
-	jc	= j + 0.5*dj;
-	kc	= k;
-
-	nfm++;
-	grid.Face_Data.resize(nfm);
-	grid.whereisFace.resize(nfm+1);
-	last_location_face	= grid.Face_Data.size() - 1;
-	face_new1	= &grid.Face_Data[last_location_face];
-
-	face_new1->ID		= nfm;
-	face_new1->index.i 	= ic;
-	face_new1->index.j 	= jc;
-	face_new1->index.k 	= kc;
-	face_new1->index.lvl_refine = lvl_refine;
-	face_new1->index.direction = 1;
-	face_new1->N_List.resize(2);
-	face_new1->N_List[0]	= node_new2;
-	face_new1->N_List[1]	= node_new1;
-	face_new1->Parent = NULL;
-	face_new1->has_Child = false;
-	face_new1->CL	= cell_new1;
-	face_new1->CR	= cell_new2;
-	grid.whereisFace[face_new1->ID]	= last_location_face;
-	//grid.Face_Index_Map.insert(ic, jc, kc, last_location_face);
-	GridProcessing_Face_v2(grid, last_location_face);
-
-
-
-	// face2
-	ic	= i + 1.5*di;
-	jc	= j + dj;
-	kc	= k;
-
-	nfm++;
-	grid.Face_Data.resize(nfm);
-	grid.whereisFace.resize(nfm+1);
-	last_location_face	= grid.Face_Data.size() - 1;
-	face_new2	= &grid.Face_Data[last_location_face];
-
-	face_new2->ID	= nfm;
-	face_new2->index.i = ic;
-	face_new2->index.j = jc;
-	face_new2->index.k = kc;
-	face_new2->index.lvl_refine = lvl_refine;
-	face_new2->index.direction = 2;
-	face_new2->N_List.resize(2);
-	face_new2->N_List[0]	= node_new1;
-	face_new2->N_List[1]	= node_new3;
-	face_new2->Parent = NULL;
-	face_new2->has_Child = false;
-	face_new2->CL	= cell_new2;
-	face_new2->CR	= cell_new3;
-	grid.whereisFace[face_new2->ID]	= last_location_face;
-	//grid.Face_Index_Map.insert(ic, jc, kc, last_location_face);
-	GridProcessing_Face_v2(grid, last_location_face);
-
-
-	// face3
-	ic	= i + di;
-	jc	= j + 1.5*dj;
-	kc	= k;
-
-	nfm++;
-	grid.Face_Data.resize(nfm);
-	grid.whereisFace.resize(nfm+1);
-	last_location_face	= grid.Face_Data.size() - 1;
-	face_new3	= &grid.Face_Data[last_location_face];
-
-	face_new3->ID	= nfm;
-	face_new3->index.i = ic;
-	face_new3->index.j = jc;
-	face_new3->index.k = kc;
-	face_new3->index.lvl_refine = lvl_refine;
-	face_new3->index.direction = 1;
-	face_new3->N_List.resize(2);
-	face_new3->N_List[0]	= node_new1;
-	face_new3->N_List[1]	= node_new4;
-	face_new3->Parent = NULL;
-	face_new3->has_Child = false;
-	face_new3->CL	= cell_new4;
-	face_new3->CR	= cell_new3;
-	grid.whereisFace[face_new3->ID]	= last_location_face;
-	//grid.Face_Index_Map.insert(ic, jc, kc, last_location_face);
-	GridProcessing_Face_v2(grid, last_location_face);
-
-
-	// face4
-	ic	= i + 0.5*di;
-	jc	= j + dj;
-	kc	= k;
-
-	nfm++;
-	grid.Face_Data.resize(nfm);
-	grid.whereisFace.resize(nfm+1);
-	last_location_face	= grid.Face_Data.size() - 1;
-	face_new4	= &grid.Face_Data[last_location_face];
-
-	face_new4->ID	= nfm;
-	face_new4->index.i = ic;
-	face_new4->index.j = jc;
-	face_new4->index.k = kc;
-	face_new4->index.lvl_refine = lvl_refine;
-	face_new4->index.direction = 2;
-	face_new4->N_List.resize(2);
-	face_new4->N_List[0]	= node_new5;
-	face_new4->N_List[1]	= node_new1;
-	face_new4->Parent = NULL;
-	face_new4->has_Child = false;
-	face_new4->CL	= cell_new1;
-	face_new4->CR	= cell_new4;
-	grid.whereisFace[face_new4->ID]	= last_location_face;
-	//grid.Face_Index_Map.insert(ic, jc, kc, last_location_face);
-	GridProcessing_Face_v2(grid, last_location_face);
-
+	two_dj		= 2.0 * dj;
+	three_dj	= 3.0 * dj;
 
 	// face5
-	ic	= i + 0.5*di;
-	jc	= j;
-	kc	= k;
-
-	if (grid.FACE(ic, jc, kc) == NULL)
-	{
-		nfm++;
-		grid.Face_Data.resize(nfm);
-		grid.whereisFace.resize(nfm+1);
-		last_location_face	= grid.Face_Data.size() - 1;
-		face_new5	= &grid.Face_Data[last_location_face];
-
-		face_new5->ID	= nfm;
-		face_new5->index.i = ic;
-		face_new5->index.j = jc;
-		face_new5->index.k = kc;
-		face_new5->index.lvl_refine = lvl_refine;
-		face_new5->index.direction = 1;
-		face_new5->N_List.resize(2);
-		face_new5->N_List[0]	= node1;
-		face_new5->N_List[1]	= node_new2;
-		face_new5->Parent = face1;
-		face_new5->has_Child = false;
-
-		if (face1->CL != NULL && face1->CL->has_Child == true)	face_new5->CL	= face1->CL->Children[3];
-		else													face_new5->CL	= face1->CL;
-		face_new5->CR	= cell_new1;
-
-		grid.whereisFace[face_new5->ID]	= last_location_face;
-	//	grid.Face_Index_Map.insert(ic, jc, kc, last_location_face);
-		GridProcessing_Face_v2(grid, last_location_face);
-	}
-	else
-	{
-		face_new5	= grid.FACE(ic, jc, kc);
-	}
-
+	face.index.i 			= i + two_di;
+	face.index.j 			= j + dj;
+	face.index.k 			= k;
+	face.index.lvl_refine 	= lvl_refine;
+	face.index.direction 	= 1;
+	face.N_List.resize(2);
+	face.N_List[0]	= node6;
+	face.N_List[1]	= node5;
+	face.Parent = NULL;
+	face.has_Child = false;
+	face.CL	= cell_new1;
+	face.CR	= cell_new2;
+	grid.FACE_add(face.index.i, face.index.j, face.index.k, face);
 
 	// face6
-	ic	= i + 1.5*di;
-	jc	= j;
-	kc	= k;
-
-	if (grid.FACE(ic, jc, kc) == NULL)
-	{
-		nfm++;
-		grid.Face_Data.resize(nfm);
-		grid.whereisFace.resize(nfm+1);
-		last_location_face	= grid.Face_Data.size() - 1;
-		face_new6	= &grid.Face_Data[last_location_face];
-
-		face_new6->ID	= nfm;
-		face_new6->index.i = ic;
-		face_new6->index.j = jc;
-		face_new6->index.k = kc;
-		face_new6->index.lvl_refine = lvl_refine;
-		face_new6->index.direction = 1;
-		face_new6->N_List.resize(2);
-		face_new6->N_List[0]	= node_new2;
-		face_new6->N_List[1]	= node2;
-		face_new6->Parent = face1;
-		face_new6->has_Child = false;
-
-		if (face1->CL != NULL && face1->CL->has_Child == true)	face_new6->CL	= face1->CL->Children[2];
-		else													face_new6->CL	= face1->CL;
-		face_new6->CR	= cell_new2;
-
-		grid.whereisFace[face_new6->ID]	= last_location_face;
-	//	grid.Face_Index_Map.insert(ic, jc, kc, last_location_face);
-		GridProcessing_Face_v2(grid, last_location_face);
-	}
-	else
-	{
-		face_new6	= grid.FACE(ic, jc, kc);
-	}
-
+	face.index.i 			= i + three_di;
+	face.index.j 			= j + two_dj;
+	face.index.k 			= k;
+	face.index.lvl_refine 	= lvl_refine;
+	face.index.direction 	= 2;
+	face.N_List.resize(2);
+	face.N_List[0]	= node5;
+	face.N_List[1]	= node7;
+	face.Parent = NULL;
+	face.has_Child = false;
+	face.CL	= cell_new2;
+	face.CR	= cell_new3;
+	grid.FACE_add(face.index.i, face.index.j, face.index.k, face);
 
 	// face7
-	ic	= i + 2.0*di;
-	jc	= j + 0.5*dj;
-	kc	= k;
-
-	if (grid.FACE(ic, jc, kc) == NULL)
-	{
-		nfm++;
-		grid.Face_Data.resize(nfm);
-		grid.whereisFace.resize(nfm+1);
-		last_location_face	= grid.Face_Data.size() - 1;
-		face_new7	= &grid.Face_Data[last_location_face];
-
-		face_new7->ID	= nfm;
-		face_new7->index.i = ic;
-		face_new7->index.j = jc;
-		face_new7->index.k = kc;
-		face_new7->index.lvl_refine = lvl_refine;
-		face_new7->index.direction = 2;
-		face_new7->N_List.resize(2);
-		face_new7->N_List[0]	= node2;
-		face_new7->N_List[1]	= node_new3;
-		face_new7->Parent = face2;
-		face_new7->has_Child = false;
-
-		face_new7->CL	= cell_new2;
-		if (face2->CR != NULL && face2->CR->has_Child == true)	face_new7->CR	= face2->CR->Children[0];
-		else													face_new7->CR	= face2->CR;
-
-		grid.whereisFace[face_new7->ID]	= last_location_face;
-	//	grid.Face_Index_Map.insert(ic, jc, kc, last_location_face);
-		GridProcessing_Face_v2(grid, last_location_face);
-	}
-	else
-	{
-		face_new7	= grid.FACE(ic, jc, kc);
-	}
+	face.index.i 			= i + two_di;
+	face.index.j 			= j + three_dj;
+	face.index.k 			= k;
+	face.index.lvl_refine 	= lvl_refine;
+	face.index.direction 	= 1;
+	face.N_List.resize(2);
+	face.N_List[0]	= node5;
+	face.N_List[1]	= node8;
+	face.Parent = NULL;
+	face.has_Child = false;
+	face.CL	= cell_new4;
+	face.CR	= cell_new3;
+	grid.FACE_add(face.index.i, face.index.j, face.index.k, face);
 
 
 	// face8
-	ic	= i + 2.0*di;
-	jc	= j + 1.5*dj;
-	kc	= k;
-
-	if (grid.FACE(ic, jc, kc) == NULL)
-	{
-		nfm++;
-		grid.Face_Data.resize(nfm);
-		grid.whereisFace.resize(nfm+1);
-		last_location_face	= grid.Face_Data.size() - 1;
-		face_new8	= &grid.Face_Data[last_location_face];
-
-		face_new8->ID	= nfm;
-		face_new8->index.i = ic;
-		face_new8->index.j = jc;
-		face_new8->index.k = kc;
-		face_new8->index.lvl_refine = lvl_refine;
-		face_new8->index.direction = 2;
-		face_new8->N_List.resize(2);
-		face_new8->N_List[0]	= node_new3;
-		face_new8->N_List[1]	= node3;
-		face_new8->Parent = face2;
-		face_new8->has_Child = false;
-
-		face_new8->CL	= cell_new3;
-		if (face2->CR != NULL && face2->CR->has_Child == true)	face_new8->CR = face2->CR->Children[3];
-		else													face_new8->CR	= face2->CR;
-
-		grid.whereisFace[face_new8->ID]	= last_location_face;
-	//	grid.Face_Index_Map.insert(ic, jc, kc, last_location_face);
-		GridProcessing_Face_v2(grid, last_location_face);
-	}
-	else
-	{
-		face_new8	= grid.FACE(ic, jc, kc);
-	}
+	face.index.i 			= i + di;
+	face.index.j 			= j + two_dj;
+	face.index.k 			= k;
+	face.index.lvl_refine 	= lvl_refine;
+	face.index.direction 	= 2;
+	face.N_List.resize(2);
+	face.N_List[0]	= node9;
+	face.N_List[1]	= node5;
+	face.Parent = NULL;
+	face.has_Child = false;
+	face.CL	= cell_new1;
+	face.CR	= cell_new4;
+	grid.FACE_add(face.index.i, face.index.j, face.index.k, face);
 
 
 	// face9
-	ic	= i + 1.5*di;
-	jc	= j + 2.0*dj;
-	kc	= k;
-
-	if (grid.FACE(ic, jc, kc) == NULL)
+	if (grid.FACE(i+di, j, k)	== NULL)
 	{
-		nfm++;
-		grid.Face_Data.resize(nfm);
-		grid.whereisFace.resize(nfm+1);
-		last_location_face	= grid.Face_Data.size() - 1;
-		face_new9	= &grid.Face_Data[last_location_face];
-
-		face_new9->ID	= nfm;
-		face_new9->index.i = ic;
-		face_new9->index.j = jc;
-		face_new9->index.k = kc;
-		face_new9->index.lvl_refine = lvl_refine;
-		face_new9->index.direction = 1;
-		face_new9->N_List.resize(2);
-		face_new9->N_List[0]	= node_new4;
-		face_new9->N_List[1]	= node3;
-		face_new9->Parent = face3;
-		face_new9->has_Child = false;
-		face_new9->CL	= cell_new3;
-		if (face3->CR != NULL && face3->CR->has_Child == true)	face_new9->CR	= face3->CR->Children[1];
-		else													face_new9->CR	= face3->CR;
-
-		grid.whereisFace[face_new9->ID]	= last_location_face;
-	//	grid.Face_Index_Map.insert(ic, jc, kc, last_location_face);
-		GridProcessing_Face_v2(grid, last_location_face);
+		face.index.i 			= i + di;
+		face.index.j 			= j;
+		face.index.k 			= k;
+		face.index.lvl_refine 	= lvl_refine;
+		face.index.direction 	= 2;
+		face.N_List.resize(2);
+		face.N_List[0]	= node1;
+		face.N_List[1]	= node6;
+		face.Parent = face1;
+		face.has_Child = false;
+		face.CL	= face1->CL;
+		face.CR	= cell_new1;
+		grid.FACE_add(face.index.i, face.index.j, face.index.k, face);
 	}
 	else
 	{
-		face_new9	= grid.FACE(ic, jc, kc);
+		if (grid.FACE(i+di, j, k)->CR != cell)
+		{
+			Common::ExceptionGeneral(FromHere(), "CellRefinement:: Problem in the stencil of Face9. CR of face 9 is not Mother Cell", Common::ErrorCode::NotMatchDimention());
+		}
+		grid.FACE(i+di, j, k)->CR = cell_new1;
 	}
-
-
 
 	// face10
-	ic	= i + 0.5*di;
-	jc	= j + 2.0*dj;
-	kc	= k;
-
-	if (grid.FACE(ic, jc, kc) == NULL)
+	if (grid.FACE(i+three_di, j, k)	== NULL)
 	{
-		nfm++;
-		grid.Face_Data.resize(nfm);
-		grid.whereisFace.resize(nfm+1);
-		last_location_face	= grid.Face_Data.size() - 1;
-		face_new10	= &grid.Face_Data[last_location_face];
-
-		face_new10->ID	= nfm;
-		face_new10->index.i = ic;
-		face_new10->index.j = jc;
-		face_new10->index.k = kc;
-		face_new10->index.lvl_refine = lvl_refine;
-		face_new10->index.direction = 1;
-		face_new10->N_List.resize(2);
-		face_new10->N_List[0]	= node4;
-		face_new10->N_List[1]	= node_new4;
-		face_new10->Parent = face3;
-		face_new10->has_Child = false;
-
-		face_new10->CL	= cell_new4;
-		if (face3->CR != NULL && face3->CR->has_Child == true)	face_new10->CR	= face3->CR->Children[0];
-		else													face_new10->CR	= face3->CR;
-
-		grid.whereisFace[face_new10->ID]	= last_location_face;
-	//	grid.Face_Index_Map.insert(ic, jc, kc, last_location_face);
-		GridProcessing_Face_v2(grid, last_location_face);
+		face.index.i 			= i + three_di;
+		face.index.j 			= j;
+		face.index.k 			= k;
+		face.index.lvl_refine 	= lvl_refine;
+		face.index.direction 	= 2;
+		face.N_List.resize(2);
+		face.N_List[0]	= node6;
+		face.N_List[1]	= node2;
+		face.Parent = face1;
+		face.has_Child = false;
+		face.CL	= face1->CL;
+		face.CR	= cell_new2;
+		grid.FACE_add(face.index.i, face.index.j, face.index.k, face);
 	}
 	else
 	{
-		face_new10	= grid.FACE(ic, jc, kc);
+		if (grid.FACE(i+three_di, j, k)->CR != cell)
+		{
+			Common::ExceptionGeneral(FromHere(), "CellRefinement:: Problem in the stencil of Face10. CR of face10 is not Mother Cell", Common::ErrorCode::NotMatchDimention());
+		}
+		grid.FACE(i+three_di, j, k)->CR = cell_new2;
 	}
 
 
 	// face11
-	ic	= i;
-	jc	= j + 1.5*dj;
-	kc	= k;
-
-	if (grid.FACE(ic, jc, kc) == NULL)
+	if (grid.FACE(i+4.0*di, j + dj, k)	== NULL)
 	{
-		nfm++;
-		grid.Face_Data.resize(nfm);
-		grid.whereisFace.resize(nfm+1);
-		last_location_face	= grid.Face_Data.size() - 1;
-		face_new11	= &grid.Face_Data[last_location_face];
-
-		face_new11->ID	= nfm;
-		face_new11->index.i = ic;
-		face_new11->index.j = jc;
-		face_new11->index.k = kc;
-		face_new11->index.lvl_refine = lvl_refine;
-		face_new11->index.direction = 2;
-		face_new11->N_List.resize(2);
-		face_new11->N_List[0]	= node_new5;
-		face_new11->N_List[1]	= node4;
-		face_new11->Parent = face4;
-		face_new11->has_Child = false;
-
-		if (face4->CL != NULL && face4->CL->has_Child == true)	face_new11->CL	= face4->CL->Children[2];
-		else													face_new11->CL	= face4->CL;
-		face_new11->CR	= cell_new4;
-
-		grid.whereisFace[face_new11->ID]	= last_location_face;
-	//	grid.Face_Index_Map.insert(ic, jc, kc, last_location_face);
-		GridProcessing_Face_v2(grid, last_location_face);
+		face.index.i 			= i + 4.0*di;
+		face.index.j 			= j + dj;
+		face.index.k 			= k;
+		face.index.lvl_refine 	= lvl_refine;
+		face.index.direction 	= 1;
+		face.N_List.resize(2);
+		face.N_List[0]	= node2;
+		face.N_List[1]	= node7;
+		face.Parent = face2;
+		face.has_Child = false;
+		face.CL	= cell_new2;
+		face.CR	= face2->CR;
+		grid.FACE_add(face.index.i, face.index.j, face.index.k, face);
 	}
 	else
 	{
-		face_new11	= grid.FACE(ic, jc, kc);
+		if (grid.FACE(i+4.0*di, j+dj, k)->CL != cell)
+		{
+			Common::ExceptionGeneral(FromHere(), "CellRefinement:: Problem in the stencil of Face11. CL of face11 is not Mother Cell", Common::ErrorCode::NotMatchDimention());
+		}
+		grid.FACE(i+4.0*di, j+dj, k)->CL = cell_new2;
 	}
 
 
 	// face12
-	ic	= i;
-	jc	= j + 0.5*dj;
+	ic	= i + 2.0*di;
+	jc	= j + 1.5*dj;
 	kc	= k;
 
-	if (grid.FACE(ic, jc, kc) == NULL)
+	if (grid.FACE(i+4.0*di, j+three_dj, k)	== NULL)
 	{
-		nfm++;
-		grid.Face_Data.resize(nfm);
-		grid.whereisFace.resize(nfm+1);
-		last_location_face	= grid.Face_Data.size() - 1;
-		face_new12	= &grid.Face_Data[last_location_face];
-
-		face_new12->ID	= nfm;
-		face_new12->index.i = ic;
-		face_new12->index.j = jc;
-		face_new12->index.k = kc;
-		face_new12->index.lvl_refine = lvl_refine;
-		face_new12->index.direction = 2;
-		face_new12->N_List.resize(2);
-		face_new12->N_List[0]	= node1;
-		face_new12->N_List[1]	= node_new5;
-		face_new12->Parent = face4;
-		face_new12->has_Child = false;
-
-		if (face4->CL != NULL && face4->CL->has_Child == true)	face_new12->CL	= face4->CL->Children[1];
-		else													face_new12->CL	= face4->CL;
-		face_new12->CR	= cell_new1;
-
-		grid.whereisFace[face_new12->ID]	= last_location_face;
-	//	grid.Face_Index_Map.insert(ic, jc, kc, last_location_face);
-		GridProcessing_Face_v2(grid, last_location_face);
+		face.index.i 			= i + 4.0*di;
+		face.index.j 			= j + three_dj;
+		face.index.k 			= k;
+		face.index.lvl_refine 	= lvl_refine;
+		face.index.direction 	= 1;
+		face.N_List.resize(2);
+		face.N_List[0]	= node7;
+		face.N_List[1]	= node3;
+		face.Parent = face2;
+		face.has_Child = false;
+		face.CL	= cell_new3;
+		face.CR	= face2->CR;
+		grid.FACE_add(face.index.i, face.index.j, face.index.k, face);
 	}
 	else
 	{
-		face_new12	= grid.FACE(ic, jc, kc);
-	}
-
-
-	if (face1->has_Child == false)
-	{
-		face1->has_Child	= true;
-		face1->Children.resize(2);
-		face1->Children[0]	= face_new5;
-		face1->Children[1]	= face_new6;
-	}
-
-	if (face2->has_Child == false)
-	{
-		face2->has_Child	= true;
-		face2->Children.resize(2);
-		face2->Children[0]	= face_new7;
-		face2->Children[1]	= face_new8;
-	}
-
-	if (face3->has_Child == false)
-	{
-
-		face3->has_Child	= true;
-		face3->Children.resize(2);
-		face3->Children[0]	= face_new9;
-		face3->Children[1]	= face_new10;
-	}
-
-	if (face4->has_Child == false)
-	{
-
-		face4->has_Child	= true;
-		face4->Children.resize(2);
-		face4->Children[0]	= face_new11;
-		face4->Children[1]	= face_new12;
-	}
-
-
-
-	for (int i_f = grid.NFM-1; i_f <= nfm-1; i_f++)
-	{
-		if (grid.Face_Data[i_f].N_List[0]->BC == -1 && grid.Face_Data[i_f].N_List[1]->BC == -1)
+		if (grid.FACE(i+4.0*di, j+three_dj, k)->CL != cell)
 		{
-			grid.Face_Data[i_f].BC 	= -1;
-			grid.Face_Data[i_f].type 	= -1;
-			grid.Face_Data[i_f].remove();
+			Common::ExceptionGeneral(FromHere(), "CellRefinement:: Problem in the stencil of Face12. CL of face 12 is not Mother Cell", Common::ErrorCode::NotMatchDimention());
 		}
-		else if (grid.Face_Data[i_f].N_List[0]->BC == 1 && grid.Face_Data[i_f].N_List[1]->BC == 1)
-		{
-			grid.Face_Data[i_f].BC 	= 0;
-			grid.Face_Data[i_f].type 	= 0;
-			grid.Face_List.push_back(&grid.Face_Data[i_f]);
-		}
-		else
-		{
-			grid.Face_Data[i_f].BC 	= 1;
-			grid.Face_Data[i_f].type 	= 1;
-			grid.Face_List_Boundary.push_back(&grid.Face_Data[i_f]);
-		}
+		grid.FACE(i+4.0*di, j+three_dj, k)->CL = cell_new3;
 	}
-	grid.NFM = nfm;
 
 
+	// face13
+	if (grid.FACE(i+three_di, j+4.0*dj, k)	== NULL)
+	{
+		face.index.i 			= i + three_di;
+		face.index.j 			= j + 4.0*dj;
+		face.index.k 			= k;
+		face.index.lvl_refine 	= lvl_refine;
+		face.index.direction 	= 2;
+		face.N_List.resize(2);
+		face.N_List[0]	= node8;
+		face.N_List[1]	= node3;
+		face.Parent = face3;
+		face.has_Child = false;
+		face.CL	= cell_new3;
+		face.CR	= face3->CR;
+		grid.FACE_add(face.index.i, face.index.j, face.index.k, face);
+	}
+	else
+	{
+		if (grid.FACE(i+three_di, j+4.0*dj, k)->CL != cell)
+		{
+			Common::ExceptionGeneral(FromHere(), "CellRefinement:: Problem in the stencil of Face13. CL of face13 is not Mother Cell", Common::ErrorCode::NotMatchDimention());
+		}
+		grid.FACE(i+three_di, j+4.0*dj, k)->CL = cell_new3;
+	}
 
 
+	// face14
+	if (grid.FACE(i+di, j+4.0*dj, k)	== NULL)
+	{
+		face.index.i 			= i + di;
+		face.index.j 			= j + 4.0*dj;
+		face.index.k 			= k;
+		face.index.lvl_refine 	= lvl_refine;
+		face.index.direction 	= 2;
+		face.N_List.resize(2);
+		face.N_List[0]	= node4;
+		face.N_List[1]	= node8;
+		face.Parent = face3;
+		face.has_Child = false;
+		face.CL	= cell_new4;
+		face.CR	= face3->CR;
+		grid.FACE_add(face.index.i, face.index.j, face.index.k, face);
+	}
+	else
+	{
+		if (grid.FACE(i+di, j+4.0*dj, k)->CL != cell)
+		{
+			Common::ExceptionGeneral(FromHere(), "CellRefinement:: Problem in the stencil of Face14. CL of face14 is not Mother Cell", Common::ErrorCode::NotMatchDimention());
+		}
+		grid.FACE(i+three_di, j+4.0*dj, k)->CL = cell_new4;
+	}
+
+
+	// face15
+	if (grid.FACE(i, j+three_dj, k)	== NULL)
+	{
+		face.index.i 			= i;
+		face.index.j 			= j + three_dj;
+		face.index.k 			= k;
+		face.index.lvl_refine 	= lvl_refine;
+		face.index.direction 	= 1;
+		face.N_List.resize(2);
+		face.N_List[0]	= node4;
+		face.N_List[1]	= node9;
+		face.Parent = face4;
+		face.has_Child = false;
+		face.CL	= face4->CL;
+		face.CR	= cell_new4;
+		grid.FACE_add(face.index.i, face.index.j, face.index.k, face);
+	}
+	else
+	{
+		if (grid.FACE(i, j+three_dj, k)->CR != cell)
+		{
+			Common::ExceptionGeneral(FromHere(), "CellRefinement:: Problem in the stencil of Face15. CR of face15 is not Mother Cell", Common::ErrorCode::NotMatchDimention());
+		}
+		grid.FACE(i, j+three_dj, k)->CR = cell_new4;
+	}
+
+
+	// face16
+	if (grid.FACE(i, j+dj, k)	== NULL)
+	{
+		face.index.i 			= i;
+		face.index.j 			= j + dj;
+		face.index.k 			= k;
+		face.index.lvl_refine 	= lvl_refine;
+		face.index.direction 	= 1;
+		face.N_List.resize(2);
+		face.N_List[0]	= node9;
+		face.N_List[1]	= node1;
+		face.Parent = face4;
+		face.has_Child = false;
+		face.CL	= face4->CL;
+		face.CR	= cell_new1;
+		grid.FACE_add(face.index.i, face.index.j, face.index.k, face);
+	}
+	else
+	{
+		if (grid.FACE(i, j+dj, k)->CR != cell)
+		{
+			Common::ExceptionGeneral(FromHere(), "CellRefinement:: Problem in the stencil of Face16. CR of face16 is not Mother Cell", Common::ErrorCode::NotMatchDimention());
+		}
+		grid.FACE(i, j+dj, k)->CR = cell_new1;
+	}
+
+	c_Face* face5	= grid.FACE(i+two_di,	j+dj, 		k);
+	c_Face* face6	= grid.FACE(i+three_di,	j+two_dj, 	k);
+	c_Face* face7	= grid.FACE(i+two_di,	j+three_dj, k);
+	c_Face* face8	= grid.FACE(i+di,		j+two_dj,	k);
+	c_Face* face9	= grid.FACE(i+di,		j, 			k);
+	c_Face* face10	= grid.FACE(i+three_di,	j,			k);
+	c_Face* face11	= grid.FACE(i+4.0*di,	j+dj, 		k);
+	c_Face* face12	= grid.FACE(i+4.0*di,	j+three_dj, k);
+	c_Face* face13	= grid.FACE(i+three_di,	j+4.0*dj, 	k);
+	c_Face* face14	= grid.FACE(i+di,		j+4.0*dj, 	k);
+	c_Face* face15	= grid.FACE(i,			j+three_dj, k);
+	c_Face* face16	= grid.FACE(i,			j+dj, 		k);
+
+	GridProcessing_Face_v2(*face5, grid.DIM);
+	GridProcessing_Face_v2(*face6, grid.DIM);
+	GridProcessing_Face_v2(*face7, grid.DIM);
+	GridProcessing_Face_v2(*face8, grid.DIM);
+	GridProcessing_Face_v2(*face9, grid.DIM);
+	GridProcessing_Face_v2(*face10, grid.DIM);
+	GridProcessing_Face_v2(*face11, grid.DIM);
+	GridProcessing_Face_v2(*face12, grid.DIM);
+	GridProcessing_Face_v2(*face13, grid.DIM);
+	GridProcessing_Face_v2(*face14, grid.DIM);
+	GridProcessing_Face_v2(*face15, grid.DIM);
+	GridProcessing_Face_v2(*face16, grid.DIM);
+
+	face5->applyBoundary();
+	face6->applyBoundary();
+	face7->applyBoundary();
+	face8->applyBoundary();
+	face9->applyBoundary();
+	face10->applyBoundary();
+	face11->applyBoundary();
+	face12->applyBoundary();
+	face13->applyBoundary();
+	face14->applyBoundary();
+	face15->applyBoundary();
+	face16->applyBoundary();
 
 
 	// 3. Create Cell
-	ic = grid.Cell_Data[c].index.i;
-	jc = grid.Cell_Data[c].index.j;
-	kc = grid.Cell_Data[c].index.k;
-	int ncm = grid.NCM;
 
 	// Cell1
-	ncm++;
-	cell_new1->ID = ncm;
-	cell_new1->index.i = ic;
-	cell_new1->index.j = jc;
-	cell_new1->index.k = kc;
 	cell_new1->index.location	= 0;
 	cell_new1->index.lvl_refine = lvl_refine;
-	cell_new1->index.location_history = grid.Cell_Data[c].index.location_history;
+	cell_new1->index.location_history = cell->index.location_history;
 	cell_new1->index.location_history.push_back(1);
 	cell_new1->N_List.resize(4);
 	cell_new1->N_List[0]	= node1;
-	cell_new1->N_List[1]	= node_new2;
-	cell_new1->N_List[2]	= node_new1;
-	cell_new1->N_List[3]	= node_new5;
+	cell_new1->N_List[1]	= node6;
+	cell_new1->N_List[2]	= node5;
+	cell_new1->N_List[3]	= node9;
 	cell_new1->F_List.resize(4);
-	cell_new1->F_List[0]	= face_new5;
-	cell_new1->F_List[1]	= face_new1;
-	cell_new1->F_List[2]	= face_new4;
-	cell_new1->F_List[3]	= face_new12;
+	cell_new1->F_List[0]	= face9;
+	cell_new1->F_List[1]	= face5;
+	cell_new1->F_List[2]	= face8;
+	cell_new1->F_List[3]	= face16;
 	cell_new1->Parent		= cell;
 
 
 	// Cell2
-	ncm++;
-	cell_new2->ID = ncm;
-	cell_new2->index.i = ic;
-	cell_new2->index.j = jc;
-	cell_new2->index.k = kc;
 	cell_new2->index.location	= 1;
 	cell_new2->index.lvl_refine = lvl_refine;
-	cell_new2->index.location_history = grid.Cell_Data[c].index.location_history;
+	cell_new2->index.location_history = cell->index.location_history;
 	cell_new2->index.location_history.push_back(1);
 	cell_new2->N_List.resize(4);
-	cell_new2->N_List[0]	= node_new2;
+	cell_new2->N_List[0]	= node6;
 	cell_new2->N_List[1]	= node2;
-	cell_new2->N_List[2]	= node_new3;
-	cell_new2->N_List[3]	= node_new1;
+	cell_new2->N_List[2]	= node7;
+	cell_new2->N_List[3]	= node5;
 	cell_new2->F_List.resize(4);
-	cell_new2->F_List[0]	= face_new6;
-	cell_new2->F_List[1]	= face_new7;
-	cell_new2->F_List[2]	= face_new2;
-	cell_new2->F_List[3]	= face_new1;
+	cell_new2->F_List[0]	= face10;
+	cell_new2->F_List[1]	= face11;
+	cell_new2->F_List[2]	= face6;
+	cell_new2->F_List[3]	= face5;
 	cell_new2->Parent		= cell;
 
 
 	// Cell3
-	ncm++;
-	cell_new3->ID = ncm;
-	cell_new3->index.i = ic;
-	cell_new3->index.j = jc;
-	cell_new3->index.k = kc;
 	cell_new3->index.location	= 2;
 	cell_new3->index.lvl_refine = lvl_refine;
-	cell_new3->index.location_history = grid.Cell_Data[c].index.location_history;
+	cell_new3->index.location_history = cell->index.location_history;
 	cell_new3->index.location_history.push_back(1);
 	cell_new3->N_List.resize(4);
-	cell_new3->N_List[0]	= node_new1;
-	cell_new3->N_List[1]	= node_new3;
+	cell_new3->N_List[0]	= node5;
+	cell_new3->N_List[1]	= node7;
 	cell_new3->N_List[2]	= node3;
-	cell_new3->N_List[3]	= node_new4;
+	cell_new3->N_List[3]	= node8;
 	cell_new3->F_List.resize(4);
-	cell_new3->F_List[0]	= face_new2;
-	cell_new3->F_List[1]	= face_new8;
-	cell_new3->F_List[2]	= face_new9;
-	cell_new3->F_List[3]	= face_new3;
+	cell_new3->F_List[0]	= face6;
+	cell_new3->F_List[1]	= face12;
+	cell_new3->F_List[2]	= face13;
+	cell_new3->F_List[3]	= face7;
 	cell_new3->Parent		= cell;
 
 
 	// Cell4
-	ncm++;
-	cell_new4->ID = ncm;
-	cell_new4->index.i = ic;
-	cell_new4->index.j = jc;
-	cell_new4->index.k = kc;
 	cell_new4->index.location	= 3;
 	cell_new4->index.lvl_refine = lvl_refine;
-	cell_new4->index.location_history = grid.Cell_Data[c].index.location_history;
+	cell_new4->index.location_history = cell->index.location_history;
 	cell_new4->index.location_history.push_back(1);
 	cell_new4->N_List.resize(4);
-	cell_new4->N_List[0]	= node_new5;
-	cell_new4->N_List[1]	= node_new1;
-	cell_new4->N_List[2]	= node_new4;
+	cell_new4->N_List[0]	= node9;
+	cell_new4->N_List[1]	= node5;
+	cell_new4->N_List[2]	= node8;
 	cell_new4->N_List[3]	= node4;
 	cell_new4->F_List.resize(4);
-	cell_new4->F_List[0]	= face_new4;
-	cell_new4->F_List[1]	= face_new3;
-	cell_new4->F_List[2]	= face_new10;
-	cell_new4->F_List[3]	= face_new11;
+	cell_new4->F_List[0]	= face8;
+	cell_new4->F_List[1]	= face7;
+	cell_new4->F_List[2]	= face14;
+	cell_new4->F_List[3]	= face15;
 	cell_new4->Parent		= cell;
 
+	GridProcessing_Cell_v2(*cell_new1, grid.DIM);
+	GridProcessing_Cell_v2(*cell_new2, grid.DIM);
+	GridProcessing_Cell_v2(*cell_new3, grid.DIM);
+	GridProcessing_Cell_v2(*cell_new4, grid.DIM);
 
-	grid.whereisCell[cell_new1->ID]	= last_location_cell+1;
-	grid.whereisCell[cell_new2->ID]	= last_location_cell+2;
-	grid.whereisCell[cell_new3->ID]	= last_location_cell+3;
-	grid.whereisCell[cell_new4->ID]	= last_location_cell+4;
+	cell->has_Child = true;
+	cell->Children.resize(4);
+	cell->Children[0]	= cell_new1;
+	cell->Children[1]	= cell_new2;
+	cell->Children[2]	= cell_new3;
+	cell->Children[3]	= cell_new4;
+	cell->setRefine(false);
 
-	grid.Cell_Index_Map[ic][jc][kc](lvl_refine, 0)	= last_location_cell+1;
-	grid.Cell_Index_Map[ic][jc][kc](lvl_refine, 1)	= last_location_cell+2;
-	grid.Cell_Index_Map[ic][jc][kc](lvl_refine, 2)	= last_location_cell+3;
-	grid.Cell_Index_Map[ic][jc][kc](lvl_refine, 3)	= last_location_cell+4;
-
-
-	grid.Cell_Data[c].has_Child = true;
-	grid.Cell_Data[c].Children.resize(4);
-	grid.Cell_Data[c].Children[0]	= cell_new1;
-	grid.Cell_Data[c].Children[1]	= cell_new2;
-	grid.Cell_Data[c].Children[2]	= cell_new3;
-	grid.Cell_Data[c].Children[3]	= cell_new4;
-
-
-
-
-	for (int i_c = grid.NCM-1; i_c <= ncm-1; i_c++)
-	{
-		if (grid.Cell_Data[i_c].N_List[0]->BC == 1 &&
-			grid.Cell_Data[i_c].N_List[1]->BC == 1 &&
-			grid.Cell_Data[i_c].N_List[2]->BC == 1 &&
-			grid.Cell_Data[i_c].N_List[3]->BC == 1 )
-		{
-			grid.Cell_Data[i_c].BC	= 0;
-			grid.Cell_Data[i_c].type	= 0;
-
-			grid.Cell_List.push_back(&grid.Cell_Data[i_c]);
-		}
-		else if (grid.Cell_Data[i_c].N_List[0]->BC <= 0 &&
-			grid.Cell_Data[i_c].N_List[1]->BC <= 0 &&
-			grid.Cell_Data[i_c].N_List[2]->BC <= 0 &&
-			grid.Cell_Data[i_c].N_List[3]->BC <= 0 )
-		{
-			grid.Cell_Data[i_c].BC	= 1;
-			grid.Cell_Data[i_c].type	= -1;
-
-			grid.Cell_List_Ghost.push_back(&grid.Cell_Data[i_c]);
-			grid.Cell_Data[i_c].remove();
-		}
-		else
-		{
-			grid.Cell_Data[i_c].BC	= 0;
-			grid.Cell_Data[i_c].type	= 1;
-
-			grid.Cell_List.push_back(&grid.Cell_Data[i_c]);
-		}
-	}
-
-	GridProcessing_Cell_v2(grid, last_location_cell+1);
-	GridProcessing_Cell_v2(grid, last_location_cell+2);
-	GridProcessing_Cell_v2(grid, last_location_cell+3);
-	GridProcessing_Cell_v2(grid, last_location_cell+4);
-	grid.NCM = ncm;
-	cell->remove();
+	cell_new1->applyBoundary();
+	cell_new2->applyBoundary();
+	cell_new3->applyBoundary();
+	cell_new4->applyBoundary();
 }
 
 
-*/
 
 
 

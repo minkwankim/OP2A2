@@ -46,19 +46,20 @@ int main(int argc, char *argv[])
 
 
 	// Grid Generation/Read
-	int Nx	= 100;
-	int Ny  = 50;
+	int Nx	= 30;
+	int Ny  = 15;
+	vector<unsigned int> BCs(4);
+	BCs[0]	= 5;
+	BCs[1]	= 3;
+	BCs[2]	= 3;
+	BCs[3]	= 2;
+
 	GRID::c_Grid grid(Nx, Ny);
-	GRID::GridGen2D_v1(-2.0, Nx, 4.0, 0.0, Ny, 3.0, 1.0, false, grid);
+	GRID::GridGen2D_v1(-2.0, Nx, 4.0, 0.0, Ny, 3.0, 1.0, false, BCs, grid);
+	GRID::GridRefineGeometry(grid, 3);
 
 
-	/*
-	for (int l = 0; l <= 2; l++)
-	{
-		GridSetRefiningFlagGeometry(grid);
-		GridSetRefiniement(grid);
-	}
-	*/
+
 
 
 	for (int i_n = 0; i_n <= grid.NNM-1; i_n++)

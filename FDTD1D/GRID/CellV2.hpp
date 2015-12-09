@@ -57,12 +57,25 @@ protected:
 public:
 	void applyBoundary();
 
+	/*
+	c_Cell*	CS();
+	c_Cell*	CE();
+	c_Cell*	CN();
+	c_Cell*	CW();
+*/
+
 	void CheckError();
 	void resizeData(unsigned int size_data);
+
 	void remove();
-	void setRefine(bool flag);
+	void include();
 	bool isInclude();
+
+	void setRefine(bool flag);
 	bool needToRefine();
+
+
+
 
 };
 

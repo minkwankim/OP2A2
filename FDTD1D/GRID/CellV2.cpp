@@ -106,10 +106,9 @@ void Cell_V2::applyBoundary()
 
 
 
-
-
-
-
+/*
+ * 1.2 Find Stencil
+ */
 
 
 
@@ -173,16 +172,13 @@ void Cell_V2::resizeData(unsigned int size_data)
 	data.resize(size_data);
 }
 
-void Cell_V2::remove()
-{
-	m_include = false;
-}
 
 
-bool Cell_V2::isInclude()
-{
-	return (m_include);
-}
+
+
+void Cell_V2::remove()		{m_include = false;	}
+void Cell_V2::include() 	{m_include = true;	}
+bool Cell_V2::isInclude()	{return (m_include);}
 
 bool Cell_V2::needToRefine()
 {

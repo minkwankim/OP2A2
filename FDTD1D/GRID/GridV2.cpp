@@ -38,7 +38,9 @@ Grid_V2::Grid_V2(unsigned int Nx, unsigned int Ny):
 		m_IJK_face(Nx, Ny),	m_whereisFace(m_IJK_face.max()+1, -1),
 		m_IJK_cell(Nx, Ny),	m_whereisCell(m_IJK_cell.max()+1, -1)
 {
-
+		m_Node_Data.reserve(Nx*Ny*100);
+		m_Face_Data.reserve((2*Nx*Ny + Nx + Ny)*100);
+		m_Cell_Data.reserve(Nx*Ny*100);
 }
 
 
@@ -356,12 +358,21 @@ void Grid_V2::FACE_add(double i, double j, double k, const c_Face& face)
 
 		m_Face_Data[pos_f] 		= face;
 		m_Face_Data[pos_f].ID 	= ID_f;
+		m_Face_Data[pos_f].index.i = i;
+		m_Face_Data[pos_f].index.j = j;
+		m_Face_Data[pos_f].index.k = k;
 	}
 	else
 	{
-		m_Face_Data.push_back(face);
-		m_whereisFace[ID_f]	= m_Face_Data.size() -1;
-		m_Face_Data[m_whereisFace[ID_f]].ID = ID_f;
+		int m_size = m_Face_Data.size();
+		m_Face_Data.resize(m_size+1);
+		m_whereisFace[ID_f]	= m_size;
+
+		m_Face_Data[m_size]	= face;
+		m_Face_Data[m_size].ID = ID_f;
+		m_Face_Data[m_size].index.i = i;
+		m_Face_Data[m_size].index.j = j;
+		m_Face_Data[m_size].index.k = k;
 	}
 }
 
@@ -372,9 +383,14 @@ void Grid_V2::FACE_add(double i, double j, double k)
 
 	if (pos_f < 0)
 	{
-		m_Face_Data.resize(m_Face_Data.size()+1);
-		m_whereisFace[ID_f]	= m_Face_Data.size() -1;
-		m_Face_Data[m_whereisFace[ID_f]].ID = ID_f;
+		int m_size = m_Face_Data.size();
+		m_Face_Data.resize(m_size+1);
+		m_whereisFace[ID_f]	= m_size;
+
+		m_Face_Data[m_size].ID = ID_f;
+		m_Face_Data[m_size].index.i = i;
+		m_Face_Data[m_size].index.j = j;
+		m_Face_Data[m_size].index.k = k;
 	}
 }
 
@@ -586,6 +602,8 @@ void Grid_V2::NODE_ListUpdate()
 	{
 		if (m_Node_Data[n].BC >= 1)	Node_List.push_back(&m_Node_Data[n]);
 	}
+
+	NNM	= m_Node_Data.size();
 }
 
 void Grid_V2::FACE_ListUpdate()
@@ -595,7 +613,7 @@ void Grid_V2::FACE_ListUpdate()
 
 	for (int f = 0; f <= m_Face_Data.size()-1; f++)
 	{
-		if (m_Face_Data[f].type != -1)
+		if (m_Face_Data[f].CL->type != -1 || m_Face_Data[f].CR->type != -1)
 		{
 			if (m_Face_Data[f].has_Child == false)
 			{
@@ -607,6 +625,8 @@ void Grid_V2::FACE_ListUpdate()
 			}
 		}
 	}
+
+	NFM	= m_Face_Data.size();
 }
 
 void Grid_V2::CELL_ListUpdate()
@@ -621,13 +641,21 @@ void Grid_V2::CELL_ListUpdate()
 			if (m_Cell_Data[c].has_Child == false)
 			{
 				Cell_List.push_back(&m_Cell_Data[c]);
+				m_Cell_Data[c].include();
 			}
 			else
 			{
 				Cell_List_Parent[m_Cell_Data[c].index.lvl_refine].push_back(&m_Cell_Data[c]);
+				m_Cell_Data[c].remove();
 			}
 		}
+		else
+		{
+			m_Cell_Data[c].remove();
+		}
 	}
+
+	NCM	= m_Cell_Data.size();
 }
 
 

@@ -22,7 +22,7 @@ namespace GRID {
 
 void GridGen2D_v1(const double X0, const unsigned int Nx, const double Xl,
 				const double Y0, const unsigned int Ny, const double Yl,
-				const double gridFactor, bool axysymmetric,
+				const double gridFactor, bool axysymmetric, vector<unsigned int>& BCs,
 				c_Grid& grid2D)
 {
 	grid2D.DIM	= 2;
@@ -207,10 +207,6 @@ void GridGen2D_v1(const double X0, const unsigned int Nx, const double Xl,
 	}
 
 
-	grid2D.NODE_ListUpdate();
-	grid2D.FACE_ListUpdate();
-	grid2D.CELL_ListUpdate();
-
 
 	for (unsigned int i_n = 0; i_n <= grid2D.NNM-1; i_n++)
 	{
@@ -222,6 +218,18 @@ void GridGen2D_v1(const double X0, const unsigned int Nx, const double Xl,
 	// CREATE GHOST CELLS
 	for (unsigned int i_f = 0; i_f <= grid2D.NFM-1; i_f++)
 	{
+		if (grid2D.FACE_data(i_f).index.direction == 1)
+		{
+			if (grid2D.FACE_data(i_f).index.i == 0.0)	grid2D.FACE_data(i_f).BC	= BCs[3];
+			if (grid2D.FACE_data(i_f).index.i == Nx)	grid2D.FACE_data(i_f).BC	= BCs[1];
+		}
+		else if (grid2D.FACE_data(i_f).index.direction == 2)
+		{
+			if (grid2D.FACE_data(i_f).index.j == 0.0)	grid2D.FACE_data(i_f).BC	= BCs[0];
+			if (grid2D.FACE_data(i_f).index.j == Ny)	grid2D.FACE_data(i_f).BC	= BCs[2];
+		}
+
+
 		if (grid2D.FACE_data(i_f).BC != 0)
 		{
 			if (grid2D.FACE_data(i_f).CL == NULL)	CreateGhostCell(grid2D, grid2D.FACE_data(i_f), 0);
@@ -232,6 +240,9 @@ void GridGen2D_v1(const double X0, const unsigned int Nx, const double Xl,
 
 	GridProcessing_v2(gridFactor, axysymmetric, grid2D);
 
+	grid2D.NODE_ListUpdate();
+	grid2D.FACE_ListUpdate();
+	grid2D.CELL_ListUpdate();
 
 	// Error check
 	for (int i_n = 0; i_n <= grid2D.NNM-1; i_n++)	grid2D.NODE_data(i_n).CheckError();
@@ -240,6 +251,14 @@ void GridGen2D_v1(const double X0, const unsigned int Nx, const double Xl,
 }
 
 
+void GridRefineGeometry(c_Grid& grid, unsigned int i_maxLvl)
+{
+	for (int l = 0; l <= i_maxLvl-1; l++)
+	{
+		GridSetRefiningFlagGeometry(grid);
+		GridSetRefiniement(grid);
+	}
+}
 
 
 
