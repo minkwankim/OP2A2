@@ -21,7 +21,7 @@ int GridShapeFunctions(const double x, const double y, const double z)
 {
 	double temp;
 
-	temp = pow((x-1.0), 2.0) + pow(y, 2.0) - 1.0;
+	temp = pow((x - 1.0), 2.0) + pow(y, 2.0) - 1.0;
 
 	if (temp > 0.0)			return (1);
 	else if (temp < 0.0)	return (-1);

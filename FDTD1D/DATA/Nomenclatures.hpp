@@ -86,6 +86,9 @@ static const std::string	W	= "PremitiveVariablesWithPressure";
 static const std::string	CoeffE	= "CoefficientForElectricFieldUpdate";
 static const std::string	CoeffH	= "CoefficientForMagneticFieldUpdate";
 
+static const std::string	M_source = "SourceofMagneticField";
+
+
 
 
 /*

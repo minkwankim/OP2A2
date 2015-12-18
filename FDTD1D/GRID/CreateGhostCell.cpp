@@ -24,6 +24,12 @@ namespace GRID {
 
 
 
+
+
+
+
+
+
 // Direction:	0 - LEFT
 //				1 - RIGHT
 
@@ -65,6 +71,7 @@ void CreateGhostCell(c_Grid& grid, c_Face& face, unsigned int direction)
 	ghost.x[2]	= 2.0*face.x[2] - cell->x[2];
 
 	ghost.S	= face.S;
+	if (cell->data.size()!= 0 ) ghost.data.resize(cell->data.size());
 
 	grid.GHOST_add(ghost);
 	if (direction == 0)	face.CL	= &grid.GHOST_data(grid.NGM-1);

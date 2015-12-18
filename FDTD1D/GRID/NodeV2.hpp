@@ -38,6 +38,7 @@ public:
 	std::vector<double>		Wc;
 	std::vector<c_Cell*>	C_List;
 
+
 	std::vector<double>		data;
 
 protected:

@@ -56,6 +56,7 @@ protected:
 
 public:
 	void applyBoundary();
+	void dataUpdateFromChildren();
 
 	/*
 	c_Cell*	CS();

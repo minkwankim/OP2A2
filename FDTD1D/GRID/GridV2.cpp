@@ -41,6 +41,7 @@ Grid_V2::Grid_V2(unsigned int Nx, unsigned int Ny):
 		m_Node_Data.reserve(Nx*Ny*100);
 		m_Face_Data.reserve((2*Nx*Ny + Nx + Ny)*100);
 		m_Cell_Data.reserve(Nx*Ny*100);
+		m_Ghost_Data.reserve(2*(2*Nx + 2*Ny));
 }
 
 

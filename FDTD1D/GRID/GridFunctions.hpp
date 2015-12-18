@@ -26,6 +26,11 @@ void GridGen2D_v1(const double X0, const unsigned int Nx, const double Xl,
 				const double gridFactor, bool axysymmetric, vector<unsigned int>& BCs,
 				c_Grid& grid2D);
 
+void GridGen2D_v1_CreateGhostCell(const double X0, const unsigned int Nx, const double Xl,
+									const double Y0, const unsigned int Ny, const double Yl,
+									const double gridFactor, bool axysymmetric, vector<unsigned int>& BCs,
+									c_Grid& grid2D);
+
 void GridRefineGeometry(c_Grid& grid, unsigned int i_maxLvl);
 
 
@@ -43,6 +48,15 @@ void GridSetRefiningFlagGeometry(c_Grid& grid);
 void GridSetRefiningFlagNeighbors(c_Grid& grid);
 void GridSetRefiniement(c_Grid& grid);
 void GridRefiner2D_v1(c_Grid& grid, c_Cell* cell);
+
+
+
+void AssignDataNode(c_Grid& grid, const Common::Map1D<std::string, unsigned int>& data_map, const std::vector<double>& data_storage);
+void AssignDataFace(c_Grid& grid, const Common::Map1D<std::string, unsigned int>& data_map, const std::vector<double>& data_storage);
+void AssignDataCell(c_Grid& grid, const Common::Map1D<std::string, unsigned int>& data_map, const std::vector<double>& data_storage);
+
+
+
 
 
 

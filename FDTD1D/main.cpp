@@ -28,7 +28,10 @@
 #include "./GRID/GridSetupParameter.hpp"
 #include "./GRID/GridFunctions.hpp"
 
-#include "./COMMON/VectorPointer.hpp"
+#include "./DATA/Variables.hpp"
+
+#include "./NUMERICAL/NumericalMethodUtilities.hpp"
+
 
 using namespace OP2A;
 
@@ -44,10 +47,22 @@ int main(int argc, char *argv[])
 	int 	outputFileType		= 1;
 
 
+	// Setup Data Variables
+	Common::Map1D<string, unsigned int> data_map_face;
+	Common::Map1D<string, unsigned int> data_map_node;
+	Common::Map1D<string, unsigned int> data_map_cell;
+	std::vector<double> 				data_storage_face;
+	std::vector<double> 				data_storage_node;
+	std::vector<double> 				data_storage_cell;
+
+	DATA::VariableTMz_face(data_map_face, data_storage_face);
+	DATA::VariableTMz_node(data_map_node, data_storage_node);
+	DATA::VariableTMz_cell(data_map_cell, data_storage_cell);
+
 
 	// Grid Generation/Read
-	int Nx	= 30;
-	int Ny  = 15;
+	int Nx	= 40;
+	int Ny  = 20;
 	vector<unsigned int> BCs(4);
 	BCs[0]	= 5;
 	BCs[1]	= 3;
@@ -56,22 +71,35 @@ int main(int argc, char *argv[])
 
 	GRID::c_Grid grid(Nx, Ny);
 	GRID::GridGen2D_v1(-2.0, Nx, 4.0, 0.0, Ny, 3.0, 1.0, false, BCs, grid);
+	GRID::AssignDataNode(grid, data_map_node, data_storage_node);
+	GRID::AssignDataFace(grid, data_map_face, data_storage_face);
+	GRID::AssignDataCell(grid, data_map_cell, data_storage_cell);
+	GRID::GridGen2D_v1_CreateGhostCell(-2.0, Nx, 4.0, 0.0, Ny, 3.0, 1.0, false, BCs, grid);
 	GRID::GridRefineGeometry(grid, 3);
 
 
-
-
-
-	for (int i_n = 0; i_n <= grid.NNM-1; i_n++)
+	//[TEST] Assign value
+	int iv = grid.Cell_Data_Map.find(E);
+	for (int c = 0; c <= grid.Cell_List.size()-1; c++)
 	{
-		grid.NODE_data(i_n).data.resize(1);
-		grid.NODE_data(i_n).data[0] = 0;
+		double x = grid.Cell_List[c]->x[0];
+		double y = grid.Cell_List[c]->x[1];
+
+		grid.Cell_List[c]->data[iv] = pow(x-1.0, 2.0) + y*y;
 	}
 
-	grid.Node_Data_Map.insert("test", 0);
+	for (int c = 0; c <= grid.NCM-1; c++)	grid.CELL_data(c).dataUpdateFromChildren();
 
-	vector<unsigned int> variableFlag(1);
-	variableFlag[0] = grid.Node_Data_Map.find("test");
+
+	vector<unsigned int> variableFlagCell(1); variableFlagCell[0] = iv;
+	vector<unsigned int> variableFlagNode(1); variableFlagNode[0] = grid.Node_Data_Map.find(E);
+	GetNodeVariables(grid, variableFlagCell, variableFlagNode, 1);
+
+
+	vector<unsigned int> variableFlag(2);
+	variableFlag[0] = grid.Node_Data_Map.find(E);
+	variableFlag[1] = grid.Node_Data_Map.find(sigma);
+
 
 	// Print Result
 	IO::TecplotV2 outputTecplot;

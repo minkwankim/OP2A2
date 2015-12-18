@@ -45,65 +45,86 @@ Cell_V2::~Cell_V2()
 
 
 /*
- * 1.1 Apply boundary and deciding type of face
+ * 1.1 Apply boundary and deciding type of Cell
  */
+// TYPE  0: Flow
+// TYPE  1: Merged
+// TYPE -1: Surface
 void Cell_V2::applyBoundary()
 {
-	type	= 1;
-	BC		= 1;
+	unsigned int count_inside 	= 0;
+	unsigned int count_outside 	= 0;
+	unsigned int count_surface = 0;
 
-	bool flag_type = true;
+
+	// Count number cell in each domain
 	for (int n = 1; n <= N_List.size()-1; n++)
 	{
-		if (N_List[n]->BC == 1)
+		switch (N_List[n]->BC)
 		{
-			if (flag_type != true)
-			{
-				flag_type = false;
-				break;
-			}
+		case 1:
+			count_outside++;
+			break;
+		case 0:
+			count_surface++;
+			break;
+		case -1:
+			count_inside++;
+			break;
+		}
+	}
+
+
+	if (count_inside == 0)
+	{
+		if (count_outside > 0)
+		{
+			type = 0;
+			BC	 = 0;
 		}
 		else
 		{
-			flag_type = false;
+			type = 1;
+			BC	 = 1;
 		}
-
-		if (flag_type != true)	break;
 	}
-
-	if (flag_type == true)
+	else
 	{
-		type	= 0;
-		BC		= 0;
-	}
-
-
-	flag_type = true;
-	for (int n = 1; n <= N_List.size()-1; n++)
-	{
-		if (N_List[n]->BC == -1)
+		if (count_outside > 0)
 		{
-			if (flag_type != true)
-			{
-				flag_type = false;
-				break;
-			}
+			type = 1;
+			BC	 = 1;
 		}
 		else
 		{
-			flag_type = false;
+			type = -1;
+			BC   = -1;
 		}
-
-		if (flag_type != true)	break;
-	}
-
-	if (flag_type == true)
-	{
-		type	= -1;
-		BC		= 1;
 	}
 }
 
+
+
+/*
+ * 1.2 Data Updata from Childrens
+ */
+void Cell_V2::dataUpdateFromChildren()
+{
+	if (has_Child == true)
+	{
+		double S = 0;
+		for (int c = 0; c <= Children.size()-1; c++)	S += Children[c]->S;
+
+		for (int v = 0; v <= data.size()-1; v++)
+		{
+			data[v] = 0.0;
+			for (int c = 0; c <= Children.size()-1; c++)
+			{
+				data[v] += Children[c]->data[v]*Children[c]->S/S;
+			}
+		}
+	}
+}
 
 
 /*

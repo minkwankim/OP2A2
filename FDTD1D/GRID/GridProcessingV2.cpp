@@ -84,10 +84,20 @@ void GridProcessing_v2(const double gridFactor, bool isAxisymmetric, c_Grid& gri
 void GridProcessing_Node_v2(c_Node& node, unsigned int DIM)
 {
 	double S = 0.0;
-	for (int n = 0; n <= node.C_List.size()-1; n++)	S	+= node.C_List[n]->S;
+	double x;
+	for (int n = 0; n <= node.C_List.size()-1; n++)
+	{
+		x = MATH::CalLength(node.x, node.C_List[n]->x);
+
+		if (node.C_List[n]->type != -2)	S	+= node.C_List[n]->S;
+	}
 
 	node.Wc.resize(node.C_List.size());
-	for (int n = 0; n <= node.C_List.size()-1; n++)	node.Wc[n] = node.C_List[n]->S / S;
+	for (int n = 0; n <= node.C_List.size()-1; n++)
+	{
+		if (node.C_List[n]->type != -2)	node.Wc[n] = node.C_List[n]->S / S;
+		else							node.Wc[n] = 0.0;
+	}
 }
 
 

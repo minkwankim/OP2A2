@@ -101,11 +101,6 @@ void GridSetRefiniement(c_Grid& grid)
 	}
 
 
-	grid.NODE_ListUpdate();
-	grid.FACE_ListUpdate();
-	grid.CELL_ListUpdate();
-
-
 	// CREATE GHOST CELLS
 	for (unsigned int i_f = 0; i_f <= grid.NFM-1; i_f++)
 	{
@@ -115,6 +110,10 @@ void GridSetRefiniement(c_Grid& grid)
 			if (grid.FACE_data(i_f).CR == NULL)	CreateGhostCell(grid, grid.FACE_data(i_f), 1);
 		}
 	}
+
+	grid.NODE_ListUpdate();
+	grid.FACE_ListUpdate();
+	grid.CELL_ListUpdate();
 }
 
 
@@ -160,18 +159,22 @@ void GridRefiner2D_v1(c_Grid& grid, c_Cell* cell)
 	cell_new1->index.i	= ic-di;
 	cell_new1->index.j	= jc-di;
 	cell_new1->index.k	= kc;
+	cell_new1->data.resize(cell->data.size());
 
 	cell_new2->index.i	= ic+di;
 	cell_new2->index.j	= jc-di;
 	cell_new2->index.k	= kc;
+	cell_new2->data.resize(cell->data.size());
 
 	cell_new3->index.i	= ic+di;
 	cell_new3->index.j	= jc+di;
 	cell_new3->index.k	= kc;
+	cell_new3->data.resize(cell->data.size());
 
 	cell_new4->index.i	= ic-di;
 	cell_new4->index.j	= jc+di;
 	cell_new4->index.k	= kc;
+	cell_new4->data.resize(cell->data.size());
 
 
 
@@ -194,6 +197,7 @@ void GridRefiner2D_v1(c_Grid& grid, c_Cell* cell)
 	{
 		Common::ExceptionGeneral(FromHere(), "CellRefinement:: Problem in refinement level in y-direction.", Common::ErrorCode::NotMatchDimention());
 	}
+	node.data.resize(node1->data.size());
 
 
 	// Node1
@@ -353,6 +357,7 @@ void GridRefiner2D_v1(c_Grid& grid, c_Cell* cell)
 	c_Node* node9	= grid.NODE(i 		  , j + 	dj, k);
 
 
+
 	// 2. FACE
 	c_Face	face;
 	di	= 1.0 / pow(2.0, lvl_refine + 1);
@@ -365,6 +370,8 @@ void GridRefiner2D_v1(c_Grid& grid, c_Cell* cell)
 
 	two_dj		= 2.0 * dj;
 	three_dj	= 3.0 * dj;
+
+	face.data.resize(face1->data.size());
 
 	// face5
 	face.index.i 			= i + two_di;
@@ -776,6 +783,13 @@ void GridRefiner2D_v1(c_Grid& grid, c_Cell* cell)
 	cell_new2->applyBoundary();
 	cell_new3->applyBoundary();
 	cell_new4->applyBoundary();
+
+
+	GridProcessing_Node_v2(*node5, grid.DIM);
+	GridProcessing_Node_v2(*node6, grid.DIM);
+	GridProcessing_Node_v2(*node7, grid.DIM);
+	GridProcessing_Node_v2(*node8, grid.DIM);
+	GridProcessing_Node_v2(*node9, grid.DIM);
 }
 
 
