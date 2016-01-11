@@ -36,6 +36,9 @@ int EnumToInt(T v)
 }
 
 
+std::string intToString(int i);
+std::string intToString(unsigned int i);
+
 }
 }
 

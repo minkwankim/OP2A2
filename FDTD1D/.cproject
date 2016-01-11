@@ -74,7 +74,7 @@
 								<option id="intel.linkstep.perflibs.mkl.1482518136" name="Use Intel(R) Math Kernel Library (-mkl=[arg])" superClass="intel.linkstep.perflibs.mkl" value="perflibs.mkl.parallel" valueType="enumerated"/>
 								<option id="intel.linkstep.debugparallel.1674726966" name="Enable Parallel Debug Checks (-debug parallel)" superClass="intel.linkstep.debugparallel" value="true" valueType="boolean"/>
 								<option id="intel.linkstep.general.optimization2.1890578281" name="Optimization Level" superClass="intel.linkstep.general.optimization2" value="general.opt.none" valueType="enumerated"/>
-								<option id="intel.linkstep.libname.458785124" name="Additional Libraries (-l)" superClass="intel.linkstep.libname" valueType="libs"/>
+								<option id="intel.linkstep.libname.458785124" name="Additional Libraries (-l)" superClass="intel.linkstep.libname"/>
 								<inputType id="intel.linkstep.input.1095701482" superClass="intel.linkstep.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -162,6 +162,7 @@
 								</option>
 								<option id="intel.compilestep.category.pch.pch.1407491748" name="Automatic Processing for Precompiled Headers (-pch)" superClass="intel.compilestep.category.pch.pch" value="false" valueType="boolean"/>
 								<option id="intel.compilestep.pch.pch_dir.891494252" name="Precompiled Headers' File Directory (-pch-dir dirname)" superClass="intel.compilestep.pch.pch_dir" value="" valueType="string"/>
+								<option id="intel.compilestep.language.ansi_conformance.1818422938" superClass="intel.compilestep.language.ansi_conformance" value="ansi_conformance.8" valueType="enumerated"/>
 								<inputType id="intel.cpp.compilestep.input.1439717230" superClass="intel.cpp.compilestep.input"/>
 							</tool>
 							<tool id="intel.c.compilestep.linux.x86_64.exe.dbg.1025743537_14.0.0" name="Intel Intel(R) 64 C Compiler" superClass="intel.c.compilestep.linux.x86_64.exe.dbg_14.0.0">

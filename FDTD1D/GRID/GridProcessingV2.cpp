@@ -36,7 +36,7 @@ void GridProcessing_v2(const double gridFactor, bool isAxisymmetric, c_Grid& gri
 	if (gridFactor != 1.0)
 	{
 #pragma ivdep
-		for (int i_n = 0; i_n <= grid.NCM-1; i_n++)
+		for (int i_n = 0; i_n <= grid.NNM-1; i_n++)
 		{
 			for (int i_k = 0; i_k <= grid.DIM-1; i_k++)
 			{
@@ -49,7 +49,7 @@ void GridProcessing_v2(const double gridFactor, bool isAxisymmetric, c_Grid& gri
 	if (isAxisymmetric == true && grid.DIM == 2)
 	{
 #pragma ivdep
-		for (int i_n = 0; i_n <= grid.NCM-1; i_n++)
+		for (int i_n = 0; i_n <= grid.NNM-1; i_n++)
 		{
 			grid.NODE_data(i_n).x[1]	+= CONST_GRID_AXISSYMMETRIC_ADD;
 		}

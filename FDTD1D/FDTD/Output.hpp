@@ -15,50 +15,50 @@
 
 #include "./GRID/Grid.hpp"
 #include "./DATA/Nomenclatures.hpp"
-#include "./IO/Tecplot.hpp"
+//#include "./IO/Tecplot.hpp"
 
 
 
 namespace OP2A{
 namespace FDTD{
 
-
-class OutputTecplot : public IO::Tecplot
-{
-	/*
-	 * I. Constructor and Destructor
-	 */
-public:
-	OutputTecplot()	 {	};
-	~OutputTecplot() {	};
-
-
-	/*
-	 * II. Member Variables
-	 */
-public:
-
-
-	/*
-	 * III. Member Functions
-	 */
-	// MF-PUB-01 - setVariation
-	// @brief 	Overloading setVariables
-	// @return Void
-	void setVariables();
-
-	// MF-PUB-02 - WriteTecplotHeader
-	// @brief 	Prepare data for Tecplot header
-	void WriteHeader(const std::string& tec_title, int tec_filetype, int dim);
-
-
-	// MF-PUB-03 - WriteTecplot
-	void WriteTecplot(const std::string& tec_title, Grid<GRID::Node, GRID::Face, GRID::Cell, GRID::Cell>& grid, int CPUnumber, bool isCellcenter, const std::string& filename);
-
-
-};
-
-
+/*
+//class OutputTecplot : public IO::Tecplot
+//{
+//	/*
+//	 * I. Constructor and Destructor
+//	 */
+//public:
+//	OutputTecplot()	 {	};
+//	~OutputTecplot() {	};
+//
+//
+//	/*
+//	 * II. Member Variables
+//	 */
+//public:
+//
+//
+//	/*
+//	 * III. Member Functions
+//	 */
+//	// MF-PUB-01 - setVariation
+//	// @brief 	Overloading setVariables
+//	// @return Void
+//	void setVariables();
+//
+//	// MF-PUB-02 - WriteTecplotHeader
+//	// @brief 	Prepare data for Tecplot header
+//	void WriteHeader(const std::string& tec_title, int tec_filetype, int dim);
+//
+//
+//	// MF-PUB-03 - WriteTecplot
+//	void WriteTecplot(const std::string& tec_title, Grid<GRID::Node, GRID::Face, GRID::Cell, GRID::Cell>& grid, int CPUnumber, bool isCellcenter, const std::string& filename);
+//
+//
+//};
+//
+//*/
 
 
 }

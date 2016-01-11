@@ -8,6 +8,9 @@
  *  Created on: Nov 10, 2015
  *      Author: minkwan
  */
+#include "./COMMON/ExceptionGeneral.hpp"
+#include "./COMMON/ErrorCode.hpp"
+
 
 #include "./MATH/Vector.hpp"
 
@@ -59,7 +62,25 @@ VECTOR NormalFromThreePoint(VECTOR A, VECTOR B, VECTOR C)
 }
 
 
+double VectorDotProduct(std::vector<double> A, std::vector<double>B)
+{
+	// Check the size of vector
+	if (A.size() != B.size())
+	{
+		Common::ExceptionGeneral(FromHere(), "Error in dot product: Dimension of X and Y values do not match", OP2A::Common::ErrorCode::NotMatchDimention());
+	}
 
+	double ans = 0.0;
+	for (int i = 0; i <= A.size()-1; i++)	ans	+= A[i]*B[i];
+	return (ans);
+}
+
+double VectorDotProduct(double (&A)[3], double (&B)[3])
+{
+	double ans = 0.0;
+	for (int i = 0; i <= 2; i++)	ans	+= A[i]*B[i];
+	return (ans);
+}
 
 
 

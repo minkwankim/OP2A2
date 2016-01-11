@@ -105,8 +105,3 @@ MATRIX MATRIX_Inv2(MATRIX &A);
 
 
 #endif /* OP2A_MATRIX_HPP_ */
-
-
-
-
-#endif /* MATRIX_HPP_ */

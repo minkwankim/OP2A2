@@ -22,6 +22,7 @@ namespace Common {
 class COMMON_API ErrorCode : public Common::NonInstantiable<ErrorCode>
 {
 public:
+	static std::string DataMismatch()			{ return ("DataMismatch:");	};
 	static std::string NotMatchDimention()		{ return ("NotMatchDimension:");	};
 	static std::string NotSupportedType()		{ return ("NotSupportedType:");	};
 	static std::string NotMatchTypeofPointer()	{ return ("NotMatchTypeofPointer:");	};
@@ -30,6 +31,8 @@ public:
 	static std::string NaNValue()				{ return ("NaNValue:");	};
 	static std::string InfValue()				{ return ("InfValue:");	};
 	static std::string ExceedLimit()			{ return ("ExceedLimit:");	};
+	static std::string FileSystem()				{ return ("FileSystem:");	};
+
 
 
 

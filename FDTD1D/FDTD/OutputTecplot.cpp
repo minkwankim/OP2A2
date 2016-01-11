@@ -24,6 +24,7 @@ namespace FDTD{
 // @param	tec_title		Title of Output
 // @param	tec_filefype	File type (0:Full / 1:Grid / 2:Solution)
 // @return Void
+/*
 void OutputTecplot::setVariables()
 {
 	m_tec_variables.clear();
@@ -269,7 +270,7 @@ void OutputTecplot::WriteTecplot(const std::string& tec_title, Grid<GRID::Node, 
 	}
 }
 
-
+*/
 
 }
 }

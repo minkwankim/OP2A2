@@ -103,6 +103,12 @@ double VectorDotProduct(VECTOR A, VECTOR B);
 VECTOR VectorCrossProduct(VECTOR A, VECTOR B);
 VECTOR NormalFromThreePoint(VECTOR A, VECTOR B, VECTOR C);
 
+double VectorDotProduct(std::vector<double> A, std::vector<double>B);
+double VectorDotProduct(double (&A)[3], double (&B)[3]);
+
+
+
+
 }
 }
 
